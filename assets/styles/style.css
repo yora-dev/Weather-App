@@ -8,9 +8,10 @@
   --details-color: rgb(60, 59, 94); /*600*/
   --text-300: rgb(172, 172, 183); /*300*/
   --text-200: rgb(212, 211, 217); /*200*/
-  --text-00: rgb(255, 255, 255); /*200*/
+  --text-00: rgb(255, 255, 255); /*00*/
 
-  --dm-sans: "DM Sans" sans-serif;
+  --dm-sans: "DM Sans", sans-serif;
+  --bricolage: "Bricolage Grotesque", sans-serif;
 }
 
 * {
@@ -26,6 +27,10 @@ html {
 body {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  background-color: var(--bg-color);
+  align-items: center;
+  padding: 1.6rem;
 }
 
 /*Typography*/
@@ -40,7 +45,7 @@ body {
 }
 
 .text-2 {
-  font-family: "Bricolage Grotesque", sans-serif;
+  font-family: var(--bricolage);
   font-size: 5.2rem;
   font-weight: 700;
   line-height: 6.72rem;
@@ -93,4 +98,86 @@ body {
   font-weight: 500;
   font-size: 1.4rem;
   line-height: 1.68rem;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.nav {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.nav__units {
+  display: flex;
+  color: var(--text-00);
+  justify-content: center;
+  align-items: center;
+  background-color: var(--active-unit);
+  gap: 0.6rem;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.nav__units img,
+.sunny {
+  width: 100%;
+}
+
+.header {
+  color: var(--text-00);
+  text-align: center;
+  margin: 4.8rem 0;
+}
+
+.search-container {
+  width: 100%;
+}
+
+.search__bar {
+  background-color: var(--search-bar-color);
+  padding: 1.6rem 2.4rem;
+  display: flex;
+  gap: 1.6rem;
+  border-radius: 8px;
+  width: 100%;
+}
+
+#input-field {
+  background-color: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--text-200);
+}
+
+.search__btn {
+  padding: 1.6rem;
+  width: 100%;
+  color: var(--text-00);
+  background-color: var(--light-blue);
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  margin-top: 1.2rem;
+}
+
+.general-info {
+  background-image: url(../images/bg-today-small.svg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.city,
+.temp {
+  color: var(--text-00);
+}
+
+.date {
+  color: var(--text-200);
 }

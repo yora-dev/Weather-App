@@ -9,8 +9,47 @@
       href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css" />
-    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="assets/styles/style.css" />
+    <script src="assets/scripts/script.js" defer></script>
   </head>
-  <body></body>
+  <body>
+    <div class="main-container">
+      <nav class="nav">
+        <img src="assets/images/logo.svg" alt="" class="nav__logo" />
+
+        <div class="nav__units">
+          <img src="assets/images/icon-units.svg" alt="" class="setting" />
+          <span class="units--text text-8">Units</span>
+          <img src="assets/images/icon-dropdown.svg" alt="" class="dropdown" />
+        </div>
+      </nav>
+
+      <h1 class="header text-2">How’s the sky looking today?</h1>
+
+      <div class="search-container">
+        <div class="search__bar">
+          <img src="assets/images/icon-search.svg" alt="" class="search" />
+          <input
+            type="text"
+            id="input-field"
+            placeholder="Search for a place..."
+            class="text-5-medium"
+          />
+        </div>
+        <button class="search__btn text-5-medium">Search</button>
+      </div>
+
+      <div class="general-info">
+        <div class="city-date-info">
+          <p class="city text-4">Berlin, Germany</p>
+          <p class="date text-6">Tuesday, Aug 5, 2025</p>
+        </div>
+
+        <div class="temp-info">
+          <img src="assets/images/icon-sunny.webp" alt="" class="sunny" />
+          <p class="temp text-1">20 <span class="deg">&deg;C</span></p>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
