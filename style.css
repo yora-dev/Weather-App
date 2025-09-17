@@ -1,0 +1,23 @@
+:root {
+  --orange: rgb(255, 130, 10);
+  --light-blue: rgb(70, 88, 217);
+  --dark-blue: rgb(43, 27, 156);
+  --bg-color: rgb(2, 1, 44); /*900*/
+  --search-bar-color: rgb(38, 37, 64); /*800*/
+  --active-unit: rgb(48, 47, 74); /*700*/
+  --details-color: rgb(60, 59, 94); /*600*/
+  --text-300: rgb(172, 172, 183); /*300*/
+  --text-200: rgb(212, 211, 217); /*200*/
+  --text-00: rgb(255, 255, 255); /*200*/
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
