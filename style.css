@@ -9,6 +9,8 @@
   --text-300: rgb(172, 172, 183); /*300*/
   --text-200: rgb(212, 211, 217); /*200*/
   --text-00: rgb(255, 255, 255); /*200*/
+
+  --dm-sans: "DM Sans" sans-serif;
 }
 
 * {
@@ -17,7 +19,78 @@
   box-sizing: border-box;
 }
 
+html {
+  font-size: 62.5%;
+}
+
 body {
   display: flex;
   flex-direction: column;
+}
+
+/*Typography*/
+
+.text-1 {
+  font-family: var(--dm-sans);
+  font-size: 9.6rem;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: -1.92px;
+  line-height: 9.6rem;
+}
+
+.text-2 {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 5.2rem;
+  font-weight: 700;
+  line-height: 6.72rem;
+}
+
+.text-3 {
+  font-family: var(--dm-sans);
+  font-size: 3.2rem;
+  font-weight: 300;
+  line-height: 3.2rem;
+}
+
+.text-4 {
+  font-family: var(--dm-sans);
+  font-size: 2.8rem;
+  font-weight: 700;
+  line-height: 3.36rem;
+}
+
+.text-5 {
+  font-family: var(--dm-sans);
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 2.4rem;
+}
+
+.text-5-medium {
+  font-family: var(--dm-sans);
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 2.4rem;
+}
+
+.text-6 {
+  font-family: var(--dm-sans);
+  font-size: 1.8rem;
+  font-weight: 500;
+  line-height: 2.16rem;
+}
+
+.text-7 {
+  font-family: var(--dm-sans);
+  font-size: 1.6rem;
+  font-weight: 500;
+  line-height: 1.92rem;
+}
+
+.text-8 {
+  font-family: var(--dm-sans);
+  font-weight: 500;
+  font-size: 1.4rem;
+  line-height: 1.68rem;
 }
