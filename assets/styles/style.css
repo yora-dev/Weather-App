@@ -163,7 +163,7 @@ body {
   border-radius: 8px;
   border: none;
   outline: none;
-  margin-top: 1.2rem;
+  margin: 1.2rem 0 3.2rem 0;
 }
 
 .general-info {
@@ -171,6 +171,30 @@ body {
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
+  width: 100%;
+  border-radius: 2rem;
+  padding: 4.1rem;
+}
+
+.city-date-info {
+  text-align: center;
+  margin-bottom: 1.6rem;
+}
+
+.temp-info {
+  display: flex;
+  gap: 2rem;
+  padding: 0 2.45rem;
+  justify-content: center;
+}
+
+.temp {
+  padding: 1.2rem 0;
+  display: flex;
+}
+
+.city {
+  margin-bottom: 1.2rem;
 }
 
 .city,
@@ -180,4 +204,33 @@ body {
 
 .date {
   color: var(--text-200);
+}
+
+.sunny {
+  width: 12rem;
+  height: 12rem;
+}
+
+.detail-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 1.6rem;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.detail__card {
+  padding: 2rem;
+  background-color: var(--details-color);
+  border-radius: 12px;
+}
+
+.detail__header {
+  color: var(--text-200);
+  margin-bottom: 2.4rem;
+}
+
+.detail__value {
+  color: var(--text-00);
 }
