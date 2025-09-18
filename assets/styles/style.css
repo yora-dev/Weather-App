@@ -14,6 +14,8 @@
   --bricolage: "Bricolage Grotesque", sans-serif;
 }
 
+/* Genaral Styles */
+
 * {
   margin: 0;
   padding: 0;
@@ -33,7 +35,7 @@ body {
   padding: 1.6rem;
 }
 
-/*Typography*/
+/* Typography */
 
 .text-1 {
   font-family: var(--dm-sans);
@@ -100,12 +102,16 @@ body {
   line-height: 1.68rem;
 }
 
+/* Main Container Styles */
+
 .main-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
 }
+
+/* Navbar Styles */
 
 .nav {
   display: flex;
@@ -129,11 +135,15 @@ body {
   width: 100%;
 }
 
+/* Header Styles */
+
 .header {
   color: var(--text-00);
   text-align: center;
   margin: 4.8rem 0;
 }
+
+/* Search Bar Styles */
 
 .search-container {
   width: 100%;
@@ -165,6 +175,8 @@ body {
   outline: none;
   margin: 1.2rem 0 3.2rem 0;
 }
+
+/* General Forecast Styles */
 
 .general-info {
   background-image: url(../images/bg-today-small.svg);
@@ -222,8 +234,9 @@ body {
 
 .detail__card {
   padding: 2rem;
-  background-color: var(--details-color);
+  background-color: var(--active-unit);
   border-radius: 12px;
+  border: 1px solid var(--details-color);
 }
 
 .detail__header {
@@ -233,4 +246,54 @@ body {
 
 .detail__value {
   color: var(--text-00);
+}
+
+/* Daily Forecast Styles */
+
+.daily-forecast-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 100%;
+  gap: 1.6rem;
+  margin-top: 3.2rem;
+}
+
+.daily__card {
+  background-color: var(--active-unit);
+  border: 1px solid var(--details-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.6rem 1rem;
+  border-radius: 12px;
+}
+
+.daily__temp {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 1.6rem;
+}
+
+.daily__header {
+  grid-column: 1 / span 3;
+  color: var(--text-00);
+}
+
+.daily__day {
+  margin-bottom: 1.6rem;
+}
+
+.daily__day,
+.daily__high {
+  color: var(--text-00);
+}
+
+.daily__low {
+  color: var(--text-200);
+}
+
+.daily__img {
+  width: 6rem;
+  height: 6rem;
 }
