@@ -119,6 +119,7 @@ body {
   display: flex;
   width: 100%;
   justify-content: space-between;
+  position: relative;
 }
 
 .nav__units {
@@ -322,6 +323,7 @@ body {
   background-color: var(--search-bar-color);
   margin-top: 3.2rem;
   border-radius: 20px;
+  position: relative;
 }
 
 .hourly__heading {
@@ -368,6 +370,66 @@ body {
   justify-self: flex-end;
   justify-content: flex-end;
   margin-left: auto;
+}
+
+/* Units styles */
+
+.units__dropdown {
+  color: var(--text-00);
+  position: absolute;
+  right: 0;
+  background-color: var(--active-unit);
+  z-index: 200;
+  top: 5.3rem;
+  border-radius: 12px;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--details-color);
+  width: 214px;
+  display: none;
+}
+
+.unit__header {
+  padding: 1rem 0.8rem;
+}
+
+.unit__subheader {
+  color: var(--text-300);
+  padding: 0.8rem;
+}
+
+.unit__value {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 0.8rem;
+}
+
+.unit_activated {
+  background-color: var(--details-color);
+  border-radius: 8px;
+}
+
+/* Days Styles */
+
+.day__dropdown-list {
+  position: absolute;
+  right: 2.4rem;
+  top: 7.7rem;
+  z-index: 100;
+  background-color: var(--search-bar-color);
+  border-radius: 12px;
+  border: 1px solid var(--details-color);
+  padding: 0.8rem;
+}
+
+.day__dropdown {
+  padding: 1rem 0.8rem;
+  width: 214px;
+  margin-bottom: 0.4rem;
+}
+
+.day-active {
+  background-color: var(--active-unit);
+  border-radius: 8px;
 }
 
 @media screen and (min-width: 768px) {
@@ -421,9 +483,14 @@ body {
     gap: 1.6rem;
     margin-top: 3.2rem;
   }
+
   .daily__header {
     grid-column: 1 / span 7;
     color: var(--text-00);
+  }
+
+  .hourly-forecast-container {
+    padding: 2.4rem;
   }
 }
 
@@ -435,7 +502,7 @@ body {
   .sub-container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
     column-gap: 3.2rem;
     margin: 0;
     padding: 0;
