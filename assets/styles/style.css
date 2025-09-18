@@ -178,7 +178,7 @@ body {
 
 /* General Forecast Styles */
 
-.general-info {
+.general-info-container {
   background-image: url(../images/bg-today-small.svg);
   background-repeat: no-repeat;
   background-size: cover;
@@ -223,7 +223,7 @@ body {
   height: 12rem;
 }
 
-.detail-info {
+.detail-info-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
@@ -296,4 +296,64 @@ body {
 .daily__img {
   width: 6rem;
   height: 6rem;
+}
+
+/* Hourly Forecast Styles */
+
+.hourly-forecast-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  color: var(--text-00);
+  padding: 2rem 1.6rem;
+  background-color: var(--search-bar-color);
+  margin-top: 3.2rem;
+  border-radius: 20px;
+}
+
+.hourly__heading {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.hourly__toggle {
+  display: flex;
+  background-color: var(--details-color);
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1rem 1.6rem;
+  border-radius: 8px;
+}
+
+.hourly__dropdown {
+  display: block;
+  width: 1.2rem;
+  height: 1.8rem;
+}
+
+.hourly__card {
+  background-color: var(--active-unit);
+  border: 1px solid var(--details-color);
+  margin: 1.6rem 0 0 0;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: 8px;
+  padding: 1.8rem 1.2rem;
+}
+
+.hourly__img {
+  width: 4rem;
+  height: 4rem;
+  margin-right: 0.8rem;
+}
+
+.hourly__temp {
+  display: flex;
+  justify-self: flex-end;
+  justify-content: flex-end;
+  margin-left: auto;
 }
