@@ -149,6 +149,7 @@ body {
 
 .search-container {
   width: 100%;
+  position: relative;
 }
 
 .search__bar {
@@ -419,6 +420,7 @@ body {
   border-radius: 12px;
   border: 1px solid var(--details-color);
   padding: 0.8rem;
+  display: none;
 }
 
 .day__dropdown {
@@ -430,6 +432,30 @@ body {
 .day-active {
   background-color: var(--active-unit);
   border-radius: 8px;
+}
+
+/* Search Suggestion Styles */
+
+.search__dropdown {
+  position: absolute;
+  background-color: var(--search-bar-color);
+  border-radius: 12px;
+  border: 1px solid var(--details-color);
+  color: var(--text-00);
+  top: 6.6rem;
+  padding: 0.8rem;
+  width: 100%;
+  display: none;
+}
+
+.search__suggestion {
+  padding: 1rem 0.8rem;
+  margin-bottom: 0.4rem;
+}
+
+.active-city {
+  background-color: var(--active-unit);
+  border-radius: 12px;
 }
 
 @media screen and (min-width: 768px) {
@@ -492,6 +518,10 @@ body {
   .hourly-forecast-container {
     padding: 2.4rem;
   }
+
+  .search__dropdown {
+    width: 70.8%;
+  }
 }
 
 @media screen and (min-width: 1440px) {
@@ -542,5 +572,9 @@ body {
 
   .search-container {
     padding: 0 28rem;
+  }
+
+  .search__dropdown {
+    width: 40%;
   }
 }
