@@ -20,7 +20,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  transition: all 0.35s;
+  transition: 0.35s ease;
 }
 
 html {
@@ -373,6 +373,13 @@ body {
   margin-left: auto;
 }
 
+.hourly__day,
+.units--text,
+.unit__value,
+.day__dropdown {
+  cursor: pointer;
+}
+
 /* Units styles */
 
 .units__dropdown {
@@ -404,7 +411,8 @@ body {
   padding: 1rem 0.8rem;
 }
 
-.unit_activated {
+.unit_activated,
+.unit__value:hover {
   background-color: var(--details-color);
   border-radius: 8px;
 }
@@ -429,7 +437,8 @@ body {
   margin-bottom: 0.4rem;
 }
 
-.day-active {
+.day-active,
+.day__dropdown:hover {
   background-color: var(--active-unit);
   border-radius: 8px;
 }
@@ -577,4 +586,8 @@ body {
   .search__dropdown {
     width: 40%;
   }
+}
+
+.display__units {
+  display: block;
 }
