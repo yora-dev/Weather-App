@@ -90,18 +90,12 @@ allDays.forEach(function (item) {
     document.querySelector('.hourly__day').innerHTML = item.innerHTML;
   }
   item.addEventListener('click', function () {
-    // if (this == item) {
-    //   this.classList.add('day-active');
-    //   document.querySelector('.hourly__day').innerHTML = this.innerHTML;
-    // } else if ((item.classList.contains('day-active'))) {
-    //   item.classList.remove('day-active');
-    // }
+    allDays.forEach(function (day) {
+      day.classList.remove('day-active')
+    });
+
     this.classList.add('day-active');
     document.querySelector('.hourly__day').innerHTML = this.innerHTML;
-    console.log(((item.classList.contains('day-active'))));
 
-    if ((item.classList.contains('day-active')) && (item.classList.contains('day-active'))) {
-      item.classList.remove('day-active');
-    }
   })
 })
