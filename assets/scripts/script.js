@@ -98,4 +98,50 @@ allDays.forEach(function (item) {
     document.querySelector('.hourly__day').innerHTML = this.innerHTML;
 
   })
-})
+});
+
+let inputField = document.querySelector('#input-field');
+let searchDropdown = document.querySelector('.search__dropdown');
+
+inputField.addEventListener("keyup", async () => {
+  searchDropdown.classList.add('display__units');
+
+  const query = inputField.value.trim();
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?city=${query}&format=json&limit=4`, {
+      headers: { "User-Agent": "WeatherApp/1.0" }
+    });
+    const data = await res.json();
+    console.log(data);
+    countryName =
+      searchDropdown.innerHTML = data
+        .map(
+          place =>
+            ` <p class="search__suggestion text-7" onclick="selectCity('${place.display_name}', ${place.lat}, ${place.lon})">${place.name}</p>`
+        )
+        .join("");
+
+  } catch (err) {
+    console.error("Error fetching cities:", err);
+  }
+});
+
+function selectCity(name, lat, lon) {
+  const cityCountry = name
+    .trim()
+    .split(/\s+/)
+    .map(w => w.replace(/^[.,!?;:]+|[.,!?;:]+$/g, ""))
+
+  const city = cityCountry[0];
+  const country = cityCountry[cityCountry.length - 1];
+
+  inputField.value = city;
+  searchDropdown.classList.remove('display__units');
+  searchDropdown.innerHTML = "";
+
+  // 👇 This is where you can call your weather API
+  console.log("Selected city:", name, lat, lon);
+
+  // Example: fetchWeather(lat, lon);
+}
+
