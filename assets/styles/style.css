@@ -465,8 +465,8 @@ body {
 }
 
 .active-city,
-.search__dropdown:first-child,
-.search__suggestion:hover {
+.search__suggestion:hover,
+.search__dropdown p:first-of-type {
   background-color: var(--active-unit);
   border-radius: 12px;
 }

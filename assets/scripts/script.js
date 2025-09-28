@@ -1,85 +1,51 @@
+
 let navUnits = document.querySelector('.nav__units');
-let unitsDropdown = document.querySelector('.units__dropdown');
-
-navUnits.addEventListener('click', function () {
-  unitsDropdown.classList.toggle('display__units');
-})
-
 let hourlyHeading = document.querySelector('.hourly__heading');
 let dayDropdownList = document.querySelector('.day__dropdown-list');
+let unitsDropdown = document.querySelector('.units__dropdown');
 
+function dropDownActivator(dropDownType) {
+  dropDownType.classList.toggle('display__units')
+}
+
+navUnits.addEventListener('click', function () {
+  dropDownActivator(unitsDropdown)
+});
 hourlyHeading.addEventListener('click', function () {
-  dayDropdownList.classList.toggle('display__units')
-})
+  dropDownActivator(dayDropdownList)
+});
 
 let unitTemp = document.querySelectorAll('.unit__temp');
-unitTemp.forEach(function (item) {
-  unitTemp[1].children[0].style.display = 'none';
-  item.addEventListener('click', function () {
-
-    if (this === unitTemp[0]) {
-      unitTemp[0].classList.add('unit_activated');
-      unitTemp[1].classList.remove('unit_activated');
-      document.querySelector('.unit__header').innerHTML = 'Switch to Imperial';
-      unitTemp[0].children[0].style.display = 'block';
-      unitTemp[1].children[0].style.display = 'none';
-    }
-
-    if (this === unitTemp[1]) {
-      unitTemp[1].classList.add('unit_activated');
-      unitTemp[0].classList.remove('unit_activated');
-      document.querySelector('.unit__header').innerHTML = 'Switch to none';
-      unitTemp[1].children[0].style.display = 'block';
-      unitTemp[0].children[0].style.display = 'none';
-    }
-  });
-});
-
 let unitSpeed = document.querySelectorAll('.unit__speed');
-unitSpeed.forEach(function (item) {
-  unitSpeed[1].children[0].style.display = 'none';
-  item.addEventListener('click', function () {
-
-    if (this === unitSpeed[0]) {
-      unitSpeed[0].classList.add('unit_activated');
-      unitSpeed[1].classList.remove('unit_activated');
-      document.querySelector('.unit__header').innerHTML = 'Switch to Imperial';
-      unitSpeed[0].children[0].style.display = 'block';
-      unitSpeed[1].children[0].style.display = 'none';
-    }
-
-    if (this === unitSpeed[1]) {
-      unitSpeed[1].classList.add('unit_activated');
-      unitSpeed[0].classList.remove('unit_activated');
-      document.querySelector('.unit__header').innerHTML = 'Switch to none';
-      unitSpeed[1].children[0].style.display = 'block';
-      unitSpeed[0].children[0].style.display = 'none';
-    }
-  });
-});
-
 let unitPre = document.querySelectorAll('.unit__pre');
-unitPre.forEach(function (item) {
-  unitPre[1].children[0].style.display = 'none';
-  item.addEventListener('click', function () {
 
-    if (this === unitPre[0]) {
-      unitPre[0].classList.add('unit_activated');
-      unitPre[1].classList.remove('unit_activated');
-      document.querySelector('.unit__header').innerHTML = 'Switch to Imperial';
-      unitPre[0].children[0].style.display = 'block';
-      unitPre[1].children[0].style.display = 'none';
-    }
+function unitSwitch(unitType) {
+  unitType.forEach(function (item) {
+    unitType[1].children[0].style.display = 'none';
+    item.addEventListener('click', function () {
 
-    if (this === unitPre[1]) {
-      unitPre[1].classList.add('unit_activated');
-      unitPre[0].classList.remove('unit_activated');
-      document.querySelector('.unit__header').innerHTML = 'Switch to none';
-      unitPre[1].children[0].style.display = 'block';
-      unitPre[0].children[0].style.display = 'none';
-    }
+      if (this === unitType[0]) {
+        unitType[0].classList.add('unit_activated');
+        unitType[1].classList.remove('unit_activated');
+        document.querySelector('.unit__header').innerHTML = 'Switch to Imperial';
+        unitType[0].children[0].style.display = 'block';
+        unitType[1].children[0].style.display = 'none';
+      }
+
+      if (this === unitType[1]) {
+        unitType[1].classList.add('unit_activated');
+        unitType[0].classList.remove('unit_activated');
+        document.querySelector('.unit__header').innerHTML = 'Switch to none';
+        unitType[1].children[0].style.display = 'block';
+        unitType[0].children[0].style.display = 'none';
+      }
+    });
   });
-});
+}
+
+unitSwitch(unitTemp);
+unitSwitch(unitSpeed);
+unitSwitch(unitPre);
 
 let allDays = document.querySelectorAll('.day__dropdown');
 allDays.forEach(function (item) {
@@ -102,46 +68,30 @@ allDays.forEach(function (item) {
 
 let inputField = document.querySelector('#input-field');
 let searchDropdown = document.querySelector('.search__dropdown');
+inputField.addEventListener("keyup", getLocation);
 
-inputField.addEventListener("keyup", async () => {
+async function getLocation() {
+  if (inputField.value.length == 0) {
+    searchDropdown.classList.remove('display__units');
+    return;
+  }
   searchDropdown.classList.add('display__units');
-
   const query = inputField.value.trim();
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?city=${query}&format=json&limit=4`, {
-      headers: { "User-Agent": "WeatherApp/1.0" }
-    });
-    const data = await res.json();
+    const response = await fetch(
+      `https://geocoding-api.open-meteo.com/v1/search?name=${query}&format=json&count=4`
+    );
+    const data = await response.json();
     console.log(data);
-    countryName =
-      searchDropdown.innerHTML = data
-        .map(
-          place =>
-            ` <p class="search__suggestion text-7" onclick="selectCity('${place.display_name}', ${place.lat}, ${place.lon})">${place.name}</p>`
-        )
-        .join("");
+    console.log(data.results);
+    searchDropdown.innerHTML = '';
+    for (let i = 0; i < data.results.length; i++) {
+      searchDropdown.innerHTML +=
+        `<p class="search__suggestion text-7" >${data.results[i].name}, ${data.results[i].country}</p>`;
+    }
+    return data;
 
-  } catch (err) {
-    console.error("Error fetching cities:", err);
+  } catch (error) {
+    console.error("Error fetching cities:", error);
   }
-});
-
-function selectCity(name, lat, lon) {
-  const cityCountry = name
-    .trim()
-    .split(/\s+/)
-    .map(w => w.replace(/^[.,!?;:]+|[.,!?;:]+$/g, ""))
-
-  const city = cityCountry[0];
-  const country = cityCountry[cityCountry.length - 1];
-
-  inputField.value = city;
-  searchDropdown.classList.remove('display__units');
-  searchDropdown.innerHTML = "";
-
-  // 👇 This is where you can call your weather API
-  console.log("Selected city:", name, lat, lon);
-
-  // Example: fetchWeather(lat, lon);
 }
-
