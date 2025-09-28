@@ -49,12 +49,13 @@ unitSwitch(unitPre);
 
 let allDays = document.querySelectorAll('.day__dropdown');
 allDays.forEach(function (item) {
-  let listOfDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  let listOfDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   let today = new Date();
-  if (item.innerHTML == listOfDays[today.getDay() - 1]) {
+  if (item.innerHTML == listOfDays[today.getDay()]) {
     item.classList.add('day-active');
     document.querySelector('.hourly__day').innerHTML = item.innerHTML;
   }
+
   item.addEventListener('click', function () {
     allDays.forEach(function (day) {
       day.classList.remove('day-active')
