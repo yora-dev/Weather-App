@@ -89,7 +89,6 @@ async function getLocation() {
       searchDropdown.innerHTML +=
         `<p class="search__suggestion text-7" >${data.results[i].name}, ${data.results[i].country}</p>`;
     }
-    return data;
 
   } catch (error) {
     console.error("Error fetching cities:", error);
