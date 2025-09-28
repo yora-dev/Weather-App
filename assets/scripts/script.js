@@ -83,15 +83,48 @@ async function getLocation() {
       `https://geocoding-api.open-meteo.com/v1/search?name=${query}&format=json&count=4`
     );
     const data = await response.json();
-    console.log(data);
-    console.log(data.results);
     searchDropdown.innerHTML = '';
+    console.log(data);
+
+    let latitude = [];
     for (let i = 0; i < data.results.length; i++) {
       searchDropdown.innerHTML +=
-        `<p class="search__suggestion text-7" >${data.results[i].name}, ${data.results[i].country}</p>`;
-    }
+        `<p class="search__suggestion text-7" >${data.results[i].name}, ${data.results[i].country} </p>`;
+      latitude.push(data.results[i].latitude);
+    };
+    console.log(latitude);
+    selectedCity();
 
   } catch (error) {
     console.error("Error fetching cities:", error);
   }
 }
+
+function selectedCity() {
+  let suggestionList = document.querySelectorAll('.search__suggestion');
+  suggestionList.forEach(function (suggestion) {
+    suggestion.addEventListener('click', function () {
+      inputField.value = this.innerHTML;
+      searchDropdown.innerHTML = '';
+      searchDropdown.classList.remove('display__units');
+      console.log(suggestionList.indexOf(this));
+    });
+  });
+}
+
+async function getWeather(lat, lon) {
+  try {
+    const weatherResponse = await fetch(``);
+    const weatherData = weatherResponse.json();
+    console.log(weatherData);
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+
+
+
+
+
