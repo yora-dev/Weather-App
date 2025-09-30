@@ -46,8 +46,18 @@ function unitSwitch(unitType) {
 unitSwitch(unitTemp);
 unitSwitch(unitSpeed);
 unitSwitch(unitPre);
+
 let listOfDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+let listOfMonth = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 let today = new Date();
+let todayDate = listOfDays[today.getDay()];
+let monthDate = today.getDate();
+let month = listOfMonth[today.getMonth()];
+let year = today.getFullYear();
+let currentDate = `${todayDate}, ${month} ${monthDate}, ${year}`
+console.log(currentDate);
+
+
 let allDays = document.querySelectorAll('.day__dropdown');
 allDays.forEach(function (item) {
 
@@ -69,6 +79,7 @@ allDays.forEach(function (item) {
 
 let inputField = document.querySelector('#input-field');
 let searchDropdown = document.querySelector('.search__dropdown');
+inputField.value = `Addis Ababa, Ethiopia`
 inputField.addEventListener("keyup", getLocation);
 
 async function getLocation() {
@@ -77,8 +88,8 @@ async function getLocation() {
     return;
   }
   searchDropdown.classList.add('display__units');
-  const query = inputField.value.trim();
   try {
+    const query = inputField.value.trim();
     const response = await fetch(
       `https://geocoding-api.open-meteo.com/v1/search?name=${query}&format=json&count=4`
     );
@@ -103,63 +114,148 @@ async function getLocation() {
 function selectedCity(latitude, longitude) {
 
   let suggestionList = document.querySelectorAll('.search__suggestion');
-  suggestionList.forEach(function (suggestion) {
+  let suggestionArray = Array.from(suggestionList);
+  suggestionArray.forEach(function (suggestion) {
     suggestion.addEventListener('click', function () {
       inputField.value = this.innerHTML;
       searchDropdown.innerHTML = '';
       searchDropdown.classList.remove('display__units');
-      let suggestionArray = Array.from(suggestionList);
       let index = suggestionArray.indexOf(this);
 
       let lat = latitude[index];
       let lon = longitude[index];
-      getWeather(lat, lon);
+      suggestionArray = Array.from(suggestionList);
+
+      console.log(lat, lon);
+
+      getWeather(lat, lon, suggestionArray, index);
     })
   });
 }
 
-async function getWeather(lat, lon) {
+async function getWeather(lat, lon, suggestionArray, index) {
 
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m`;
 
   try {
     const weatherResponse = await fetch(url);
     const weatherData = await weatherResponse.json();
 
-    const now = new Date();
-    const times = weatherData.hourly.time;
-    const temps = weatherData.hourly.temperature_2m;
     const currentTemp = weatherData.current.temperature_2m;
     const currentHumidity = weatherData.current.relative_humidity_2m;
     const currentFeelLike = weatherData.current.apparent_temperature;
     const currentPrecipitation = weatherData.current.precipitation;
     const currentWindSpeed = weatherData.current.wind_speed_10m;
 
-    const currentIndex = times.findIndex(t => new Date(t).getHours() === now.getHours());
+    const hourlyTimes = weatherData.hourly.time;
+    const hourlyTemps = weatherData.hourly.temperature_2m;
+    const hourlyCode = weatherData.hourly.weather_code;
 
-    const next10Hours = times.slice(currentIndex, currentIndex + 10).map((time, i) => ({
-      time,
-      temperature: temps[currentIndex + i],
-    }));
-
+    const dailyHours = {};
+    hourlyTimes.forEach((timeStr, i) => {
+      const date = timeStr.split('T')[0]; // YYYY-MM-DD
+      if (!dailyHours[date]) dailyHours[date] = [];
+      dailyHours[date].push({
+        time: timeStr,
+        temperature: hourlyTemps[i],
+        weatherCode: hourlyCode[i]
+      });
+    });
+    const next10PerDay = {};
+    Object.keys(dailyHours).forEach(date => {
+      next10PerDay[date] = dailyHours[date].slice(0, 10);
+    });
     const daily = weatherData.daily.time.map((day, i) => {
       const maxTemp = weatherData.daily.temperature_2m_max[i];
       const minTemp = weatherData.daily.temperature_2m_min[i];
+      const dailyWeatherCode = weatherData.daily.weather_code;
       return {
         date: day,
         temp_max: maxTemp,
         temp_min: minTemp,
-        averageTemp: (maxTemp + minTemp) / 2
+        averageTemp: (maxTemp + minTemp) / 2,
+        weatherCode: dailyWeatherCode
       };
     });
-    console.log("Next 10 hours forecast:", next10Hours);
+
+    console.log("Next 10 hours forecast:", next10PerDay);
     console.log("7-day forecast with averages:", daily);
+
+    let generalInfo = document.querySelector('.general-info-container');
+    generalInfo.innerHTML = `<div class="city-date-info">
+            <p class="city text-4">${suggestionArray[index].innerHTML}</p>
+            <p class="date text-6">${currentDate}</p>
+          </div>
+          <div class="temp-info">
+            <img
+              src="assets/images/icon-sunny.webp"
+              alt=""
+              class="sunny__img"
+            />
+            <p class="temp text-1">${Math.round(currentTemp)}&deg;</p>
+          </div>`;
+    let detailInfo = document.querySelector('.detail-info-container');
+    detailInfo.innerHTML = `<div class="detail__card">
+            <p class="detail__header text-6">Feels Like</p>
+            <p class="detail__value text-3">${Math.round(currentFeelLike)}&deg;</p>
+          </div>
+          <div class="detail__card">
+            <p class="detail__header text-6">Humidity</p>
+            <p class="detail__value text-3">${currentHumidity}%</p>
+          </div>
+          <div class="detail__card">
+            <p class="detail__header text-6">Wind</p>
+            <p class="detail__value text-3">${currentWindSpeed} km/h</p>
+          </div>
+          <div class="detail__card">
+            <p class="detail__header text-6">Precipitation</p>
+            <p class="detail__value text-3">${currentPrecipitation} mm</p>
+          </div>`;
+    suggestionArray = suggestionArray;
+    index = index;
 
   } catch (err) {
     console.error("Error fetching weather data:", err);
   }
 }
 
+function defaultCity() {
+  let lat = 9.02497;
+  let lon = 38.74689;
+  getWeather(lat, lon, suggestionArray, index);
+  let generalInfo = document.querySelector('.general-info-container');
+  generalInfo.innerHTML = `<div class="city-date-info">
+            <p class="city text-4">${inputField.value}</p>
+            <p class="date text-6">Tuesday, Aug 5, 2025</p>
+          </div>
+          <div class="temp-info">
+            <img
+              src="assets/images/icon-sunny.webp"
+              alt=""
+              class="sunny__img"
+            />
+            <p class="temp text-1">${currentTemp}&deg;</p>
+          </div>`;
+  let detailInfo = document.querySelector('.detail-info-container');
+  detailInfo.innerHTML = `<div class="detail__card">
+            <p class="detail__header text-6">Feels Like</p>
+            <p class="detail__value text-3">${Math.round(currentFeelLike)}&deg;</p>
+          </div>
+          <div class="detail__card">
+            <p class="detail__header text-6">Humidity</p>
+            <p class="detail__value text-3">${currentHumidity}%</p>
+          </div>
+          <div class="detail__card">
+            <p class="detail__header text-6">Wind</p>
+            <p class="detail__value text-3">${currentWindSpeed} km/h</p>
+          </div>
+          <div class="detail__card">
+            <p class="detail__header text-6">Precipitation</p>
+            <p class="detail__value text-3">${currentPrecipitation} mm</p>
+          </div>`;
+}
+
+defaultCity();
 
 
 
