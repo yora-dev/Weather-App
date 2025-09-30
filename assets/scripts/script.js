@@ -46,11 +46,11 @@ function unitSwitch(unitType) {
 unitSwitch(unitTemp);
 unitSwitch(unitSpeed);
 unitSwitch(unitPre);
-
+let listOfDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+let today = new Date();
 let allDays = document.querySelectorAll('.day__dropdown');
 allDays.forEach(function (item) {
-  let listOfDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  let today = new Date();
+
   if (item.innerHTML == listOfDays[today.getDay()]) {
     item.classList.add('day-active');
     document.querySelector('.hourly__day').innerHTML = item.innerHTML;
@@ -113,21 +113,53 @@ function selectedCity(latitude, longitude) {
 
       let lat = latitude[index];
       let lon = longitude[index];
-      console.log(lat, lon);
       getWeather(lat, lon);
     })
   });
 }
 
 async function getWeather(lat, lon) {
+
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m`;
+
   try {
-    const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=7&timezone=auto`);
+    const weatherResponse = await fetch(url);
     const weatherData = await weatherResponse.json();
-    console.log(weatherData);
-  } catch (error) {
-    console.log(error);
+
+    const now = new Date();
+    const times = weatherData.hourly.time;
+    const temps = weatherData.hourly.temperature_2m;
+    const currentTemp = weatherData.current.temperature_2m;
+    const currentHumidity = weatherData.current.relative_humidity_2m;
+    const currentFeelLike = weatherData.current.apparent_temperature;
+    const currentPrecipitation = weatherData.current.precipitation;
+    const currentWindSpeed = weatherData.current.wind_speed_10m;
+
+    const currentIndex = times.findIndex(t => new Date(t).getHours() === now.getHours());
+
+    const next10Hours = times.slice(currentIndex, currentIndex + 10).map((time, i) => ({
+      time,
+      temperature: temps[currentIndex + i],
+    }));
+
+    const daily = weatherData.daily.time.map((day, i) => {
+      const maxTemp = weatherData.daily.temperature_2m_max[i];
+      const minTemp = weatherData.daily.temperature_2m_min[i];
+      return {
+        date: day,
+        temp_max: maxTemp,
+        temp_min: minTemp,
+        averageTemp: (maxTemp + minTemp) / 2
+      };
+    });
+    console.log("Next 10 hours forecast:", next10Hours);
+    console.log("7-day forecast with averages:", daily);
+
+  } catch (err) {
+    console.error("Error fetching weather data:", err);
   }
 }
+
 
 
 
