@@ -84,40 +84,46 @@ async function getLocation() {
     );
     const data = await response.json();
     searchDropdown.innerHTML = '';
-    console.log(data);
-
     let latitude = [];
+    let longitude = [];
+
     for (let i = 0; i < data.results.length; i++) {
       searchDropdown.innerHTML +=
         `<p class="search__suggestion text-7" >${data.results[i].name}, ${data.results[i].country} </p>`;
       latitude.push(data.results[i].latitude);
+      longitude.push(data.results[i].longitude);
+      selectedCity(latitude, longitude);
     };
-    console.log(latitude);
-    selectedCity();
 
   } catch (error) {
     console.error("Error fetching cities:", error);
   }
 }
 
-function selectedCity() {
+function selectedCity(latitude, longitude) {
+
   let suggestionList = document.querySelectorAll('.search__suggestion');
   suggestionList.forEach(function (suggestion) {
     suggestion.addEventListener('click', function () {
       inputField.value = this.innerHTML;
       searchDropdown.innerHTML = '';
       searchDropdown.classList.remove('display__units');
-      console.log(suggestionList.indexOf(this));
-    });
+      let suggestionArray = Array.from(suggestionList);
+      let index = suggestionArray.indexOf(this);
+
+      let lat = latitude[index];
+      let lon = longitude[index];
+      console.log(lat, lon);
+      getWeather(lat, lon);
+    })
   });
 }
 
 async function getWeather(lat, lon) {
   try {
-    const weatherResponse = await fetch(``);
-    const weatherData = weatherResponse.json();
+    const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=7&timezone=auto`);
+    const weatherData = await weatherResponse.json();
     console.log(weatherData);
-
   } catch (error) {
     console.log(error);
   }
