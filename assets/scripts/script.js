@@ -19,33 +19,97 @@ let unitTemp = document.querySelectorAll('.unit__temp');
 let unitSpeed = document.querySelectorAll('.unit__speed');
 let unitPre = document.querySelectorAll('.unit__pre');
 
-function unitSwitch(unitType) {
-  unitType.forEach(function (item) {
-    unitType[1].children[0].style.display = 'none';
-    item.addEventListener('click', function () {
+let tempUnit;
+let speedUnit;
+let preUnit;
 
+function unitSwitch(unitType, unit) {
+  unitType[1].children[0].style.display = 'none';
+
+  unitType.forEach(function (item) {
+    item.addEventListener('click', function () {
       if (this === unitType[0]) {
+        if (unitType === unitTemp) {
+          tempUnit = unit[0];
+          console.log(tempUnit);
+
+        } else if (unitType == unitSpeed) {
+          speedUnit = unit[0];
+          console.log(speedUnit);
+        } else {
+          preUnit = unit[0];
+          console.log(preUnit);
+        }
         unitType[0].classList.add('unit_activated');
         unitType[1].classList.remove('unit_activated');
         document.querySelector('.unit__header').innerHTML = 'Switch to Imperial';
         unitType[0].children[0].style.display = 'block';
         unitType[1].children[0].style.display = 'none';
       }
-
-      if (this === unitType[1]) {
+      else if (this === unitType[1]) {
+        if (unitType === unitTemp) {
+          tempUnit = unit[1];
+          console.log(tempUnit);
+        } else if (unitType == unitSpeed) {
+          speedUnit = unit[1];
+          console.log(speedUnit);
+        } else {
+          preUnit = unit[1];
+          console.log(preUnit);
+        }
         unitType[1].classList.add('unit_activated');
         unitType[0].classList.remove('unit_activated');
         document.querySelector('.unit__header').innerHTML = 'Switch to none';
         unitType[1].children[0].style.display = 'block';
         unitType[0].children[0].style.display = 'none';
       }
+
     });
   });
 }
 
-unitSwitch(unitTemp);
-unitSwitch(unitSpeed);
-unitSwitch(unitPre);
+unitSwitch(unitTemp, ['celcius', 'fahrenheit']);
+unitSwitch(unitSpeed, ['km/h', 'mph']);
+unitSwitch(unitPre, ['mm', 'in']);
+
+const weatherIcons = {
+  0: "assets/images/icon-sunny.webp",              // Clear sky
+  1: "assets/images/icon-partly-cloudy.webp",      // Mainly clear
+  2: "assets/images/icon-partly-cloudy.webp",      // Partly cloudy
+  3: "assets/images/icon-overcast.webp",           // Overcast
+
+  45: "assets/images/icon-fog.webp",               // Fog
+  48: "assets/images/icon-fog.webp",               // Depositing rime fog
+
+  51: "assets/images/icon-drizzle.webp",           // Light drizzle
+  53: "assets/images/icon-drizzle.webp",           // Moderate drizzle
+  55: "assets/images/icon-drizzle.webp",           // Dense drizzle
+  56: "assets/images/icon-drizzle.webp",           // Freezing drizzle (mapped to drizzle)
+  57: "assets/images/icon-drizzle.webp",           // Freezing drizzle (dense)
+
+  61: "assets/images/icon-rain.webp",              // Slight rain
+  63: "assets/images/icon-rain.webp",              // Moderate rain
+  65: "assets/images/icon-rain.webp",              // Heavy rain
+  66: "assets/images/icon-rain.webp",              // Freezing rain (mapped to rain)
+  67: "assets/images/icon-rain.webp",              // Freezing rain (heavy)
+
+  71: "assets/images/icon-snow.webp",              // Slight snowfall
+  73: "assets/images/icon-snow.webp",              // Moderate snowfall
+  75: "assets/images/icon-snow.webp",              // Heavy snowfall
+  77: "assets/images/icon-snow.webp",              // Snow grains
+
+  80: "assets/images/icon-rain.webp",              // Rain showers (slight)
+  81: "assets/images/icon-rain.webp",              // Rain showers (moderate)
+  82: "assets/images/icon-rain.webp",              // Rain showers (violent)
+
+  85: "assets/images/icon-snow.webp",              // Snow showers (slight)
+  86: "assets/images/icon-snow.webp",              // Snow showers (heavy)
+
+  95: "assets/images/icon-storm.webp",             // Thunderstorm
+  96: "assets/images/icon-storm.webp",             // Thunderstorm with hail
+  99: "assets/images/icon-storm.webp",             // Severe thunderstorm with hail
+};
+
 
 let listOfDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 let listOfDaysAbbreviate = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -56,7 +120,6 @@ let monthDate = today.getDate();
 let month = listOfMonth[today.getMonth()];
 let year = today.getFullYear();
 let currentDate = `${todayDate}, ${month} ${monthDate}, ${year}`
-console.log(currentDate);
 
 
 let allDays = document.querySelectorAll('.day__dropdown');
@@ -127,8 +190,6 @@ function selectedCity(latitude, longitude) {
       let lon = longitude[index];
       suggestionArray = Array.from(suggestionList);
 
-      console.log(lat, lon);
-
       getWeather(lat, lon, suggestionArray, index);
 
     });
@@ -147,7 +208,7 @@ async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName 
     const currentFeelLike = weatherData.current.apparent_temperature;
     const currentPrecipitation = weatherData.current.precipitation;
     const currentWindSpeed = weatherData.current.wind_speed_10m;
-
+    const currentWeatherCode = weatherData.current.weather_code;
 
     const listOfDaysAbbreviate = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const todayIndex = new Date().getDay();
@@ -156,6 +217,7 @@ async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName 
       const minTemp = weatherData.daily.temperature_2m_min[i];
       const dailyWeatherCode = weatherData.daily.weather_code[i];
       const dayToday = listOfDaysAbbreviate[(todayIndex + i) % 7];
+
       return {
         date: day,
         temp_max: maxTemp,
@@ -166,14 +228,15 @@ async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName 
       };
     });
 
-
     let generalInfo = document.querySelector('.general-info-container');
+
+
     generalInfo.innerHTML = `<div class="city-date-info">
             <p class="city text-4">${suggestionArray ? suggestionArray[index].innerHTML : cityName}</p>
             <p class="date text-6">${currentDate}</p>
           </div>
           <div class="temp-info">
-            <img src="assets/images/icon-sunny.webp" alt="" class="sunny__img" />
+            <img src=${weatherIcons[currentWeatherCode]} alt="" class="sunny__img" />
             <p class="temp text-1">${Math.round(currentTemp)}&deg;</p>
           </div>`;
 
@@ -200,7 +263,7 @@ async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName 
     daily.forEach(function (dailyDate) {
       dailyForecast.innerHTML += `<div class="daily__card">
             <p class="daily__day text-6">${dailyDate.dateName}</p>
-            <img src="assets/images/icon-drizzle.webp" alt="" class="daily__img" />
+            <img src=${weatherIcons[dailyDate.weatherCode]} alt="" class="daily__img" />
             <div class="daily__temp">
               <p class="daily__high text-7">${Math.round(dailyDate.temp_max)}&deg;</p>
               <p class="daily__low text-7">${Math.round(dailyDate.temp_min)}&deg;</p>
