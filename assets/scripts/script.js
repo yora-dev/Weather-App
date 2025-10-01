@@ -48,6 +48,7 @@ unitSwitch(unitSpeed);
 unitSwitch(unitPre);
 
 let listOfDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+let listOfDaysAbbreviate = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 let listOfMonth = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 let today = new Date();
 let todayDate = listOfDays[today.getDay()];
@@ -147,40 +148,28 @@ async function getWeather(lat, lon, suggestionArray, index) {
     const currentPrecipitation = weatherData.current.precipitation;
     const currentWindSpeed = weatherData.current.wind_speed_10m;
 
-    const hourlyTimes = weatherData.hourly.time;
-    const hourlyTemps = weatherData.hourly.temperature_2m;
-    const hourlyCode = weatherData.hourly.weather_code;
+    const listOfDaysAbbreviate = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const todayIndex = new Date().getDay();
 
-    const dailyHours = {};
-    hourlyTimes.forEach((timeStr, i) => {
-      const date = timeStr.split('T')[0]; // YYYY-MM-DD
-      if (!dailyHours[date]) dailyHours[date] = [];
-      dailyHours[date].push({
-        time: timeStr,
-        temperature: hourlyTemps[i],
-        weatherCode: hourlyCode[i]
-      });
-    });
-    const next10PerDay = {};
-    Object.keys(dailyHours).forEach(date => {
-      next10PerDay[date] = dailyHours[date].slice(0, 10);
-    });
     const daily = weatherData.daily.time.map((day, i) => {
       const maxTemp = weatherData.daily.temperature_2m_max[i];
       const minTemp = weatherData.daily.temperature_2m_min[i];
-      const dailyWeatherCode = weatherData.daily.weather_code;
+      const dailyWeatherCode = weatherData.daily.weather_code[i];
+      const dayToday = listOfDaysAbbreviate[(todayIndex + i) % 7];
+
       return {
         date: day,
         temp_max: maxTemp,
         temp_min: minTemp,
         averageTemp: (maxTemp + minTemp) / 2,
+        dateName: dayToday,
         weatherCode: dailyWeatherCode
       };
     });
 
-    console.log("Next 10 hours forecast:", next10PerDay);
-    console.log("7-day forecast with averages:", daily);
 
+    console.log("Next 10 hours forecast:", dailyHours);
+    console.log("7-day forecast with averages:", daily);
     let generalInfo = document.querySelector('.general-info-container');
     generalInfo.innerHTML = `<div class="city-date-info">
             <p class="city text-4">${suggestionArray[index].innerHTML}</p>
@@ -211,8 +200,29 @@ async function getWeather(lat, lon, suggestionArray, index) {
             <p class="detail__header text-6">Precipitation</p>
             <p class="detail__value text-3">${currentPrecipitation} mm</p>
           </div>`;
-    suggestionArray = suggestionArray;
-    index = index;
+    let dailyForecast = document.querySelector('.daily-forecast-container');
+    dailyForecast.innerHTML = '';
+
+    daily.forEach(function (dailyDate) {
+      dailyForecast.innerHTML += ` <div class="daily__card">
+            <p class="daily__day text-6">${dailyDate.dateName}</p>
+            <img
+              src="assets/images/icon-drizzle.webp"
+              alt=""
+              class="daily__img"
+            />
+            <div class="daily__temp">
+              <p class="daily__high text-7">${Math.round(dailyDate.temp_max)}&deg;</p>
+              <p class="daily__low text-7">${Math.round(dailyDate.temp_min)}&deg;</p>
+            </div>
+          </div>`
+    });
+
+    let hourlyForecast = document.querySelector('.hourly-forecast-container');
+
+    // next10PerDay.forEach()
+
+
 
   } catch (err) {
     console.error("Error fetching weather data:", err);
@@ -255,10 +265,4 @@ function defaultCity() {
           </div>`;
 }
 
-defaultCity();
-
-
-
-
-
-
+// defaultCity();
