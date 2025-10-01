@@ -130,12 +130,12 @@ function selectedCity(latitude, longitude) {
       console.log(lat, lon);
 
       getWeather(lat, lon, suggestionArray, index);
-    })
+
+    });
   });
 }
 
-async function getWeather(lat, lon, suggestionArray, index) {
-
+async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName = 'Addis Ababa, Ethiopia') {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m`;
 
   try {
@@ -148,15 +148,14 @@ async function getWeather(lat, lon, suggestionArray, index) {
     const currentPrecipitation = weatherData.current.precipitation;
     const currentWindSpeed = weatherData.current.wind_speed_10m;
 
+
     const listOfDaysAbbreviate = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const todayIndex = new Date().getDay();
-
     const daily = weatherData.daily.time.map((day, i) => {
       const maxTemp = weatherData.daily.temperature_2m_max[i];
       const minTemp = weatherData.daily.temperature_2m_min[i];
       const dailyWeatherCode = weatherData.daily.weather_code[i];
       const dayToday = listOfDaysAbbreviate[(todayIndex + i) % 7];
-
       return {
         date: day,
         temp_max: maxTemp,
@@ -168,21 +167,16 @@ async function getWeather(lat, lon, suggestionArray, index) {
     });
 
 
-    console.log("Next 10 hours forecast:", dailyHours);
-    console.log("7-day forecast with averages:", daily);
     let generalInfo = document.querySelector('.general-info-container');
     generalInfo.innerHTML = `<div class="city-date-info">
-            <p class="city text-4">${suggestionArray[index].innerHTML}</p>
+            <p class="city text-4">${suggestionArray ? suggestionArray[index].innerHTML : cityName}</p>
             <p class="date text-6">${currentDate}</p>
           </div>
           <div class="temp-info">
-            <img
-              src="assets/images/icon-sunny.webp"
-              alt=""
-              class="sunny__img"
-            />
+            <img src="assets/images/icon-sunny.webp" alt="" class="sunny__img" />
             <p class="temp text-1">${Math.round(currentTemp)}&deg;</p>
           </div>`;
+
     let detailInfo = document.querySelector('.detail-info-container');
     detailInfo.innerHTML = `<div class="detail__card">
             <p class="detail__header text-6">Feels Like</p>
@@ -200,69 +194,30 @@ async function getWeather(lat, lon, suggestionArray, index) {
             <p class="detail__header text-6">Precipitation</p>
             <p class="detail__value text-3">${currentPrecipitation} mm</p>
           </div>`;
+
     let dailyForecast = document.querySelector('.daily-forecast-container');
     dailyForecast.innerHTML = '';
-
     daily.forEach(function (dailyDate) {
-      dailyForecast.innerHTML += ` <div class="daily__card">
+      dailyForecast.innerHTML += `<div class="daily__card">
             <p class="daily__day text-6">${dailyDate.dateName}</p>
-            <img
-              src="assets/images/icon-drizzle.webp"
-              alt=""
-              class="daily__img"
-            />
+            <img src="assets/images/icon-drizzle.webp" alt="" class="daily__img" />
             <div class="daily__temp">
               <p class="daily__high text-7">${Math.round(dailyDate.temp_max)}&deg;</p>
               <p class="daily__low text-7">${Math.round(dailyDate.temp_min)}&deg;</p>
             </div>
-          </div>`
+          </div>`;
     });
-
-    let hourlyForecast = document.querySelector('.hourly-forecast-container');
-
-    // next10PerDay.forEach()
-
-
 
   } catch (err) {
     console.error("Error fetching weather data:", err);
   }
 }
 
+
 function defaultCity() {
   let lat = 9.02497;
   let lon = 38.74689;
-  getWeather(lat, lon, suggestionArray, index);
-  let generalInfo = document.querySelector('.general-info-container');
-  generalInfo.innerHTML = `<div class="city-date-info">
-            <p class="city text-4">${inputField.value}</p>
-            <p class="date text-6">Tuesday, Aug 5, 2025</p>
-          </div>
-          <div class="temp-info">
-            <img
-              src="assets/images/icon-sunny.webp"
-              alt=""
-              class="sunny__img"
-            />
-            <p class="temp text-1">${currentTemp}&deg;</p>
-          </div>`;
-  let detailInfo = document.querySelector('.detail-info-container');
-  detailInfo.innerHTML = `<div class="detail__card">
-            <p class="detail__header text-6">Feels Like</p>
-            <p class="detail__value text-3">${Math.round(currentFeelLike)}&deg;</p>
-          </div>
-          <div class="detail__card">
-            <p class="detail__header text-6">Humidity</p>
-            <p class="detail__value text-3">${currentHumidity}%</p>
-          </div>
-          <div class="detail__card">
-            <p class="detail__header text-6">Wind</p>
-            <p class="detail__value text-3">${currentWindSpeed} km/h</p>
-          </div>
-          <div class="detail__card">
-            <p class="detail__header text-6">Precipitation</p>
-            <p class="detail__value text-3">${currentPrecipitation} mm</p>
-          </div>`;
+  getWeather(lat, lon);
 }
 
-// defaultCity();
+defaultCity();
