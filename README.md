@@ -148,46 +148,6 @@ Tips:
 
 ---
 
-## Development notes
-
-### Project structure (example)
-
-- index.html — main entry
-- /css — styles
-- /js — app logic, api.js, ui.js, utils.js
-- /assets — images, icons, preview.jpg
-- README.md — this file
-
-### Coding conventions
-
-- Keep DOM updates minimal — use incremental renders.
-- Separate concerns: API calls → data normalization → view rendering → event handlers.
-- Prefer pure functions for data transformations.
-
-### Testing & linting
-
-- Use lint tools (ESLint) to enforce style.
-- Manual testing: test unit toggles, day selection, edge cases (no results).
-- Add automated tests later (Jest for pure functions).
-
----
-
-## Accessibility & performance
-
-- Ensure semantic HTML (landmarks, headings, buttons).
-- Provide alt text for weather icons (e.g., "clear sky icon").
-- Maintain keyboard navigability for all interactive controls.
-- Lazy-load heavy assets (images); minimize DOM nodes for hourly lists.
-- Use a11y-friendly color contrast and focus outlines for keyboard users.
-
----
-
-## Deployment
-
-- GitHub Pages: push the main branch and enable Pages in repo settings (select root).
-- Netlify / Vercel: point to repo, select static build (no build command required unless you add build step).
-- Ensure index.html and assets are publicly reachable.
-
 ---
 
 ## Future improvements
@@ -208,11 +168,11 @@ Tips:
 
 ---
 
-## License
+## Screenshots
 
-MIT — see LICENSE file for details.
+Add screenshots to the repository (suggested folder: ./assets/screenshots/) and reference them here.
 
----
+![Desktop layout — main screen](./assets/screenshots/preview.jpg)
 
 ## Author
 
