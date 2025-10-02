@@ -84,39 +84,38 @@ Build a weather app where users can:
 git clone https://github.com/yourusername/weather-app.git
 ```
 
-Navigate into the project folder:
-
-cd weather-app
-Open index.html in your browser, or serve via a local server (e.g., Live Server in VSCode).
+- Navigate into the project folder:
+- cd weather-app
+- Open index.html in your browser, or serve via a local server (e.g., Live Server in VSCode).
 
 2. Usage
 
-- Type a city in the search bar to fetch weather data.
-- Click the day dropdown to view hourly forecasts for that day.
-- Click the unit toggle to switch between Metric and Imperial units.
-- Default city and day load automatically on page load.
+   - Type a city in the search bar to fetch weather data.
+   - Click the day dropdown to view hourly forecasts for that day.
+   - Click the unit toggle to switch between Metric and Imperial units.
+   - Default city and day load automatically on page load.
 
 3. What I Learned
 
-- Fetching and handling real-time weather data from an API.
-- Dynamically creating hourly and daily forecast cards.
-- Converting 24-hour time to 12-hour AM/PM format.
-- Managing UI state for unit conversions and day selection.
-- Responsive design and mobile-first development.
+   - Fetching and handling real-time weather data from an API.
+   - Dynamically creating hourly and daily forecast cards.
+   - Converting 24-hour time to 12-hour AM/PM format.
+   - Managing UI state for unit conversions and day selection.
+   - Responsive design and mobile-first development.
 
 4. Future Improvements
 
-- Modularize code: separate API logic, DOM updates, and event handlers.
-- Add animations when switching days or units.
-- Save user preferences (unit, last searched city) in local storage.
-- Better error handling for API failures or empty results.
+   - Modularize code: separate API logic, DOM updates, and event handlers.
+   - Add animations when switching days or units.
+   - Save user preferences (unit, last searched city) in local storage.
+   - Better error handling for API failures or empty results.
 
 ## Author
 
-- Yordanos Shanbel
-- GitHub: @yora-dev
-- Frontend Mentor: @yora-dev
-- Twitter: @yourusername
+    - Yordanos Shanbel
+    - GitHub: https://github.com/yora-dev
+    - Frontend Mentor: https://www.frontendmentor.io/yora-dev
+    - Discord: @yordanos01
 
 ## Acknowledgments
 
