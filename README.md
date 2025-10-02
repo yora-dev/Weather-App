@@ -1,23 +1,30 @@
 # Weather App - Frontend Mentor Solution
 
-This is a solution to the [Weather app challenge on Frontend Mentor](https://www.frontendmentor.io/challenges/weather-app-K1FhddVm49).  
-It’s a fully responsive web app that displays current weather, daily and hourly forecasts, and allows users to switch units and days.
+A responsive, mobile-first weather web app built as a Frontend Mentor challenge solution. The app shows current weather, hourly and daily forecasts, supports unit toggles (Metric/Imperial), and provides a searchable interface for locations. It uses the Open-Meteo API for weather and geocoding for location lookup.
 
 ---
 
-## Table of Contents
+## Table of contents
 
 - [Overview](#overview)
-  - [The Challenge](#the-challenge)
-  - [Screenshot](#screenshot)
-  - [Links](#links)
 - [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-  - [Installation](#installation)
-  - [Usage](#usage)
-- [What I Learned](#what-i-learned)
-- [Future Improvements](#future-improvements)
+- [Tech stack](#tech-stack)
+- [Architecture & data flow](#architecture--data-flow)
+- [Getting started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Install & run locally](#install--run-locally)
+  - [Build & serve](#build--serve)
+- [Configuration & API details](#configuration--api-details)
+- [Usage guide](#usage-guide)
+- [Development notes](#development-notes)
+  - [Project structure](#project-structure)
+  - [Coding conventions](#coding-conventions)
+  - [Testing & linting](#testing--linting)
+- [Accessibility & performance](#accessibility--performance)
+- [Deployment](#deployment)
+- [Future improvements](#future-improvements)
+- [Contributing](#contributing)
+- [License](#license)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
 
@@ -25,99 +32,201 @@ It’s a fully responsive web app that displays current weather, daily and hourl
 
 ## Overview
 
-### The Challenge
+This project implements a progressive, single-page frontend that:
 
-Build a weather app where users can:
+- Lets users search for locations (city names) and view current conditions.
+- Shows a 7-day forecast with highs/lows and selectable days.
+- Displays hourly forecasts for the selected day.
+- Provides unit toggles for temperature, wind and precipitation.
+- Is responsive, optimized for mobile-first layouts, and accessible.
 
-1. Search for weather information by location.
-2. View current weather (temperature, weather icon, location).
-3. See additional weather metrics: feels like temperature, humidity, wind speed, precipitation.
-4. Browse a 7-day forecast with high/low temperatures.
-5. View an hourly forecast for the selected day.
-6. Switch between days using the day selector.
-7. Toggle between Metric and Imperial units.
-8. Have a responsive, mobile-first interface.
-
----
-
-### Screenshot
-
-![Weather App Screenshot](./preview.jpg)
-
----
-
-### Links
-
-- **Live Site:** [https://your-live-site-url.com](https://your-live-site-url.com)
-- **Solution Repo:** [https://github.com/yora-dev/weather-app](https://github.com/yora-dev/weather-app)
+Default city on first load: Addis Ababa, Ethiopia.
 
 ---
 
 ## Features
 
-- Search for a city and get current weather and forecasts.
-- Interactive hourly forecast per day.
-- Toggle units: Celsius/Fahrenheit, km/h-mph, mm/in.
-- Default city: Addis Ababa, Ethiopia.
-- Default selected day is today.
-- Responsive layout for mobile, tablet, and desktop.
+- Search by city name with simple geocoding fallback.
+- Current weather card: temperature, condition icon, location, timestamp.
+- Additional metrics: feels-like, humidity, wind speed, precipitation.
+- 7-day forecast summary with high/low and icons.
+- Hourly forecast panel for selected day (interactive).
+- Unit switch: Metric (°C, km/h, mm) ↔ Imperial (°F, mph, in).
+- Mobile-first responsive layout with breakpoints for tablets and desktop.
+- Minimal dependencies; primarily vanilla HTML, CSS, and JS.
 
 ---
 
-## Tech Stack
+## Tech stack
 
-- **HTML5** for markup
-- **CSS3** with Flexbox & Grid
-- **JavaScript (ES6+)** for dynamic content
-- **Fetch API** to get weather data from [Open-Meteo API](https://open-meteo.com/)
-- **DOM manipulation** for updating UI dynamically
+- Plain HTML5, CSS3 (Flexbox & Grid)
+- Modern JavaScript (ES6+)
+- Fetch API for network requests
+- Open-Meteo (weather) and optional geocoding providers
+- No build tools required (static site), but optional tools recommended for development
 
 ---
 
-## Getting Started
+## Architecture & data flow
 
-### Installation
+1. User submits a location or app loads default coordinates.
+2. App resolves coordinates via lightweight geocoding (city → lat/lon).
+3. The app requests weather data (current, hourly, daily) from Open-Meteo.
+4. Responses are parsed and normalized into a UI-friendly model.
+5. UI components (current card, day selector, hourly list) render from model.
+6. Unit conversions are applied in the UI layer; original values preserved.
 
-1. Clone the repository:
+State is maintained client-side (selected day, unit mode, last search).
 
-```bash
-git clone https://github.com/yourusername/weather-app.git
-```
+---
 
-- Navigate into the project folder:
-- cd weather-app
-- Open index.html in your browser, or serve via a local server (e.g., Live Server in VSCode).
+## Getting started
 
-2. Usage
+### Prerequisites
 
-   - Type a city in the search bar to fetch weather data.
-   - Click the day dropdown to view hourly forecasts for that day.
-   - Click the unit toggle to switch between Metric and Imperial units.
-   - Default city and day load automatically on page load.
+- Modern browser (Chrome, Firefox, Edge, Safari) with ES6 support.
+- Optional: Node.js + npm if you want to run dev tooling or serve via an npm server.
 
-3. What I Learned
+### Install & run locally
 
-   - Fetching and handling real-time weather data from an API.
-   - Dynamically creating hourly and daily forecast cards.
-   - Converting 24-hour time to 12-hour AM/PM format.
-   - Managing UI state for unit conversions and day selection.
-   - Responsive design and mobile-first development.
+This repo is a static site. To open locally:
 
-4. Future Improvements
+Option A — Open directly
 
-   - Modularize code: separate API logic, DOM updates, and event handlers.
-   - Add animations when switching days or units.
-   - Save user preferences (unit, last searched city) in local storage.
-   - Better error handling for API failures or empty results.
+1. Clone the repo:
+   git clone https://github.com/yora-dev/weather-app.git
+2. Open index.html in your browser.
+
+Option B — Simple local server (recommended)
+
+- Using VS Code Live Server extension — click "Go Live".
+- Or using Python:
+  - Python 3.x: python -m http.server 5500
+  - Open http://localhost:5500
+
+Option C — Node-based static server
+
+- npm i -g serve
+- serve .
+
+### Build & serve
+
+There is no build step by default. If you add toolchain (bundler, minifier), include instructions here for npm scripts (build, start).
+
+---
+
+## Configuration & API details
+
+This app expects to fetch weather and geocoding data from public endpoints. Default implementation uses Open-Meteo (no API key).
+
+Key endpoints (examples):
+
+- Open-Meteo weather: https://api.open-meteo.com/v1/forecast
+  - Important query params: latitude, longitude, hourly (temperature_2m, precipitation, windspeed_10m, weathercode, etc.), daily parameters (temperature_2m_max, temperature_2m_min), timezone.
+- Geocoding: use Open-Meteo geocoding or another free service to convert city → coordinates.
+
+Example request:
+https://api.open-meteo.com/v1/forecast?latitude=9.03&longitude=38.74&hourly=temperature_2m,precipitation,weathercode,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto
+
+Local configuration:
+
+- If you swap to a geocoding provider that requires an API key, store keys in environment variables or a .env during development (do not commit keys).
+
+---
+
+## Usage guide
+
+- Search: Type a city name in the search bar; press Enter or select a suggestion.
+- Day selection: Click a day in the 7-day list to view its hourly forecast.
+- Units: Toggle the metric/imperial switch. The UI converts values in-place; underlying data remains unchanged.
+- Keyboard accessibility: use Tab to focus controls and Enter/Space to activate.
+
+Tips:
+
+- Default behavior falls back to a preset city on network errors.
+- Times respect the timezone returned by the API.
+
+---
+
+## Development notes
+
+### Project structure (example)
+
+- index.html — main entry
+- /css — styles
+- /js — app logic, api.js, ui.js, utils.js
+- /assets — images, icons, preview.jpg
+- README.md — this file
+
+### Coding conventions
+
+- Keep DOM updates minimal — use incremental renders.
+- Separate concerns: API calls → data normalization → view rendering → event handlers.
+- Prefer pure functions for data transformations.
+
+### Testing & linting
+
+- Use lint tools (ESLint) to enforce style.
+- Manual testing: test unit toggles, day selection, edge cases (no results).
+- Add automated tests later (Jest for pure functions).
+
+---
+
+## Accessibility & performance
+
+- Ensure semantic HTML (landmarks, headings, buttons).
+- Provide alt text for weather icons (e.g., "clear sky icon").
+- Maintain keyboard navigability for all interactive controls.
+- Lazy-load heavy assets (images); minimize DOM nodes for hourly lists.
+- Use a11y-friendly color contrast and focus outlines for keyboard users.
+
+---
+
+## Deployment
+
+- GitHub Pages: push the main branch and enable Pages in repo settings (select root).
+- Netlify / Vercel: point to repo, select static build (no build command required unless you add build step).
+- Ensure index.html and assets are publicly reachable.
+
+---
+
+## Future improvements
+
+- Modularize code: separate API, UI, and state modules; migrate to a bundler or framework if project grows.
+- Add robust caching and offline support (service worker) for quick load and offline snapshots.
+- Integrate location autocomplete with debounce & rate limiting.
+- Improve UX: animations for day transitions, better iconography, localized units/time formats.
+- Persist user preferences (units, last city) to localStorage.
+
+---
+
+## Contributing
+
+- Fork the repo, create a feature branch, and open a PR.
+- Keep changes focused and document behavior in the PR description.
+- Run linters and formatters before submitting.
+
+---
+
+## License
+
+MIT — see LICENSE file for details.
+
+---
 
 ## Author
 
-    - Yordanos Shanbel
-    - GitHub: https://github.com/yora-dev
-    - Frontend Mentor: https://www.frontendmentor.io/yora-dev
-    - Discord: @yordanos01
+Yordanos Shanbel
+
+- GitHub: @yora-dev
+- Frontend: @yora-dev
+- Discord: @yordanos01
+
+---
 
 ## Acknowledgments
 
-**Frontend Mentor** - For providing the challenge.
-**Open-Meteo API** - For free and simple weather API.
+- Frontend Mentor — challenge design & brief.
+- Open-Meteo — free weather API used for forecasts.
+
+---
