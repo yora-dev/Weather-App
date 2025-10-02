@@ -27,6 +27,7 @@ npm-debug.log*
 /.next
 /out
 /.parcel-cache
+/.vscode
 
 # IDEs and editors
 /.idea
