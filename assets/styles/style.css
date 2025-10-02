@@ -36,6 +36,19 @@ body {
   padding: 1.6rem 1.6rem 4.8rem 1.6rem;
 }
 
+/* Attribute Styles */
+.attribution {
+  font-size: 11px;
+  text-align: center;
+  color: var(--text-200);
+  text-align: center;
+  margin-top: 4rem;
+}
+
+.attribution a {
+  color: var(--text-00);
+}
+
 /* Typography */
 
 .text-1 {
