@@ -170,8 +170,6 @@ Tips:
 
 ## Screenshots
 
-Add screenshots to the repository (suggested folder: ./assets/screenshots/) and reference them here.
-
 ![Desktop layout — main screen](./assets/screenshots/preview.jpg)
 
 ## Author
