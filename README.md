@@ -136,6 +136,10 @@ Local configuration:
 
 ## Usage guide
 
+### Live demo
+
+- Live site: https://yordanos-weather-app.vercel.app/
+
 - Search: Type a city name in the search bar; press Enter or select a suggestion.
 - Day selection: Click a day in the 7-day list to view its hourly forecast.
 - Units: Toggle the metric/imperial switch. The UI converts values in-place; underlying data remains unchanged.
