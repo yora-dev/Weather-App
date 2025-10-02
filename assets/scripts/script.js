@@ -8,15 +8,18 @@ let unitTemp = document.querySelectorAll('.unit__temp');
 let unitSpeed = document.querySelectorAll('.unit__speed');
 let unitPre = document.querySelectorAll('.unit__pre');
 
-let tempUnit;
-let speedUnit;
-let preUnit;
-
 let allDays = document.querySelectorAll('.day__dropdown');
 let inputField = document.querySelector('#input-field');
 let searchDropdown = document.querySelector('.search__dropdown');
 
 let daysArray = []; // Global variable for hourly forecast per day
+
+// ===== UNIT STATE =====
+let selectedUnits = {
+  temp: "C",
+  speed: "km/h",
+  pre: "mm"
+};
 
 // ===== Utility Functions =====
 function dropDownActivator(dropDownType) {
@@ -27,40 +30,72 @@ function dropDownActivator(dropDownType) {
 navUnits.addEventListener('click', () => dropDownActivator(unitsDropdown));
 hourlyHeading.addEventListener('click', () => dropDownActivator(dayDropdownList));
 
+// ===== Conversion =====
+function convertValue(value, type) {
+  if (type === "temp") return selectedUnits.temp === "C" ? value : (value * 9 / 5) + 32;
+  if (type === "speed") return selectedUnits.speed === "km/h" ? value : value / 1.609;
+  if (type === "pre") return selectedUnits.pre === "mm" ? value : value / 25.4;
+  return value;
+}
+
+// ===== Update UI after switching units =====
+function updateDisplayedUnits() {
+  document.querySelectorAll(".hourly__temp").forEach(el => {
+    let raw = parseFloat(el.getAttribute("data-value"));
+    el.innerHTML = `${Math.round(convertValue(raw, "temp"))}°`;
+  });
+
+  document.querySelectorAll(".daily__high, .daily__low").forEach(el => {
+    let raw = parseFloat(el.getAttribute("data-value"));
+    el.innerHTML = `${Math.round(convertValue(raw, "temp"))}°`;
+  });
+
+  document.querySelectorAll(".detail__value, .temp").forEach(el => {
+    let type = el.getAttribute("data-type");
+    if (!type) return;
+    let raw = parseFloat(el.getAttribute("data-value"));
+    if (type === "temp") el.innerHTML = `${Math.round(convertValue(raw, "temp"))}°`;
+    if (type === "speed") el.innerHTML = `${Math.round(convertValue(raw, "speed"))} ${selectedUnits.speed}`;
+    if (type === "pre") el.innerHTML = `${convertValue(raw, "pre").toFixed(1)} ${selectedUnits.pre}`;
+  });
+}
+
 // ===== Unit Switcher =====
-function unitSwitch(unitType, unit) {
+function unitSwitch(unitType, type) {
   unitType[1].children[0].style.display = 'none';
 
   unitType.forEach(item => {
     item.addEventListener('click', function () {
       if (this === unitType[0]) {
-        if (unitType === unitTemp) tempUnit = unit[0];
-        else if (unitType === unitSpeed) speedUnit = unit[0];
-        else preUnit = unit[0];
-
         unitType[0].classList.add('unit_activated');
         unitType[1].classList.remove('unit_activated');
         document.querySelector('.unit__header').innerHTML = 'Switch to Imperial';
         unitType[0].children[0].style.display = 'block';
         unitType[1].children[0].style.display = 'none';
-      } else {
-        if (unitType === unitTemp) tempUnit = unit[1];
-        else if (unitType === unitSpeed) speedUnit = unit[1];
-        else preUnit = unit[1];
 
+        if (type === "temp") selectedUnits.temp = "C";
+        if (type === "speed") selectedUnits.speed = "km/h";
+        if (type === "pre") selectedUnits.pre = "mm";
+
+      } else {
         unitType[1].classList.add('unit_activated');
         unitType[0].classList.remove('unit_activated');
-        document.querySelector('.unit__header').innerHTML = 'Switch to none';
+        document.querySelector('.unit__header').innerHTML = 'Switch to Metrics';
         unitType[1].children[0].style.display = 'block';
         unitType[0].children[0].style.display = 'none';
+
+        if (type === "temp") selectedUnits.temp = "F";
+        if (type === "speed") selectedUnits.speed = "mph";
+        if (type === "pre") selectedUnits.pre = "in";
       }
+      updateDisplayedUnits();
     });
   });
 }
 
-unitSwitch(unitTemp, ['celcius', 'fahrenheit']);
-unitSwitch(unitSpeed, ['km/h', 'mph']);
-unitSwitch(unitPre, ['mm', 'in']);
+unitSwitch(unitTemp, "temp");
+unitSwitch(unitSpeed, "speed");
+unitSwitch(unitPre, "pre");
 
 // ===== Weather Icons =====
 const weatherIcons = {
@@ -94,7 +129,7 @@ const weatherIcons = {
   99: "assets/images/icon-storm.webp",
 };
 
-// ===== Lists for Date Handling =====
+// ===== Date Handling =====
 let listOfDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 let listOfMonth = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 let today = new Date();
@@ -119,64 +154,16 @@ allDays.forEach(day => {
         hourlyForecast.innerHTML += `<div class="hourly__card">
           <img src=${weatherIcons[ele.weatherCode]} alt="" class="hourly__img" />
           <p class="hourly__time text-5">${ele.time}</p>
-          <p class="hourly__temp text-7">${Math.round(ele.temperature)}&deg;</p>
+          <p class="hourly__temp text-7" data-value="${ele.temperature}">
+            ${Math.round(convertValue(ele.temperature, "temp"))}°
+          </p>
         </div>`;
       });
     }
   });
 });
 
-// ===== Location Search =====
-inputField.value = `Addis Ababa, Ethiopia`;
-inputField.addEventListener("keyup", getLocation);
 
-async function getLocation() {
-  if (!inputField.value.length) {
-    searchDropdown.classList.remove('display__units');
-    return;
-  }
-
-  searchDropdown.classList.add('display__units');
-  try {
-    const query = inputField.value.trim();
-    const response = await fetch(
-      `https://geocoding-api.open-meteo.com/v1/search?name=${query}&format=json&count=4`
-    );
-    const data = await response.json();
-    searchDropdown.innerHTML = '';
-
-    let latitude = [];
-    let longitude = [];
-
-    for (let i = 0; i < data.results.length; i++) {
-      searchDropdown.innerHTML += `<p class="search__suggestion text-7">${data.results[i].name}, ${data.results[i].country}</p>`;
-      latitude.push(data.results[i].latitude);
-      longitude.push(data.results[i].longitude);
-    }
-
-    selectedCity(latitude, longitude);
-
-  } catch (error) {
-    console.error("Error fetching cities:", error);
-  }
-}
-
-function selectedCity(latitude, longitude) {
-  let suggestionList = document.querySelectorAll('.search__suggestion');
-  let suggestionArray = Array.from(suggestionList);
-
-  suggestionArray.forEach((suggestion, index) => {
-    suggestion.addEventListener('click', function () {
-      inputField.value = this.innerHTML;
-      searchDropdown.innerHTML = '';
-      searchDropdown.classList.remove('display__units');
-
-      getWeather(latitude[index], longitude[index], suggestionArray, index);
-    });
-  });
-}
-
-// ===== Weather Fetching =====
 async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName = 'Addis Ababa, Ethiopia') {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m`;
 
@@ -193,22 +180,15 @@ async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName 
     const currentWeatherCode = weatherData.current.weather_code;
 
     // Daily Forecast
-    const listOfDaysAbbreviate = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const listOfDaysAbbrev = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const todayIndex = new Date().getDay();
-    const daily = weatherData.daily.time.map((day, i) => {
-      const maxTemp = weatherData.daily.temperature_2m_max[i];
-      const minTemp = weatherData.daily.temperature_2m_min[i];
-      const dailyWeatherCode = weatherData.daily.weather_code[i];
-      const dayToday = listOfDaysAbbreviate[(todayIndex + i) % 7];
-
-      return {
-        date: day,
-        temp_max: maxTemp,
-        temp_min: minTemp,
-        dateName: dayToday,
-        weatherCode: dailyWeatherCode
-      };
-    });
+    const daily = weatherData.daily.time.map((day, i) => ({
+      date: day,
+      temp_max: weatherData.daily.temperature_2m_max[i],
+      temp_min: weatherData.daily.temperature_2m_min[i],
+      dateName: listOfDaysAbbrev[(todayIndex + i) % 7],
+      weatherCode: weatherData.daily.weather_code[i]
+    }));
 
     // Hourly Forecast
     const hourlyTimes = weatherData.hourly.time;
@@ -249,18 +229,22 @@ async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName 
     // ===== Display Current Weather =====
     document.querySelector('.general-info-container').innerHTML = `
       <div class="city-date-info">
-        <p class="city text-4">${suggestionArray ? suggestionArray[index].innerHTML : cityName}</p>
+        <p class="city text-4">${cityName}</p>
         <p class="date text-6">${currentDate}</p>
       </div>
       <div class="temp-info">
         <img src=${weatherIcons[currentWeatherCode]} alt="" class="sunny__img" />
-        <p class="temp text-1">${Math.round(currentTemp)}&deg;</p>
+        <p class="temp text-1" data-type="temp" data-value="${currentTemp}">
+          ${Math.round(convertValue(currentTemp, "temp"))}°
+        </p>
       </div>`;
 
     document.querySelector('.detail-info-container').innerHTML = `
       <div class="detail__card">
         <p class="detail__header text-6">Feels Like</p>
-        <p class="detail__value text-3">${Math.round(currentFeelLike)}&deg;</p>
+        <p class="detail__value text-3" data-type="temp" data-value="${currentFeelLike}">
+          ${Math.round(convertValue(currentFeelLike, "temp"))}°
+        </p>
       </div>
       <div class="detail__card">
         <p class="detail__header text-6">Humidity</p>
@@ -268,11 +252,15 @@ async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName 
       </div>
       <div class="detail__card">
         <p class="detail__header text-6">Wind</p>
-        <p class="detail__value text-3">${currentWindSpeed} km/h</p>
+        <p class="detail__value text-3" data-type="speed" data-value="${currentWindSpeed}">
+          ${Math.round(convertValue(currentWindSpeed, "speed"))} ${selectedUnits.speed}
+        </p>
       </div>
       <div class="detail__card">
         <p class="detail__header text-6">Precipitation</p>
-        <p class="detail__value text-3">${currentPrecipitation} mm</p>
+        <p class="detail__value text-3" data-type="pre" data-value="${currentPrecipitation}">
+          ${convertValue(currentPrecipitation, "pre").toFixed(1)} ${selectedUnits.pre}
+        </p>
       </div>`;
 
     // ===== Display Daily Forecast =====
@@ -283,40 +271,145 @@ async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName 
         <p class="daily__day text-6">${dailyDate.dateName}</p>
         <img src=${weatherIcons[dailyDate.weatherCode]} alt="" class="daily__img" />
         <div class="daily__temp">
-          <p class="daily__high text-7">${Math.round(dailyDate.temp_max)}&deg;</p>
-          <p class="daily__low text-7">${Math.round(dailyDate.temp_min)}&deg;</p>
+          <p class="daily__high text-7" data-value="${dailyDate.temp_max}">
+            ${Math.round(convertValue(dailyDate.temp_max, "temp"))}°
+          </p>
+          <p class="daily__low text-7" data-value="${dailyDate.temp_min}">
+            ${Math.round(convertValue(dailyDate.temp_min, "temp"))}°
+          </p>
         </div>
       </div>`;
     });
 
-    // ===== Select Default Day =====
     selectDefaultDay();
-
   } catch (err) {
     console.error("Error fetching weather data:", err);
   }
 }
 
 // ===== Default Day Selection =====
+
+
 function selectDefaultDay() {
-  let todayName = listOfDays[new Date().getDay()];
+  const now = new Date();
+  const todayName = listOfDays[now.getDay()];
+
   allDays.forEach(day => day.classList.remove('day-active'));
-  let todayElement = Array.from(allDays).find(day => day.innerHTML === todayName);
+  const todayElement = Array.from(allDays).find(day => day.innerHTML === todayName);
   if (!todayElement) return;
 
   todayElement.classList.add('day-active');
   document.querySelector('.hourly__day').innerHTML = todayName;
 
-  let indexDay = listOfDays.indexOf(todayName);
-  let hourlyForecast = document.querySelector('.hourly-forecast-container-day');
+  const indexDay = daysArray.findIndex(d => d[0] === todayName);
+  if (indexDay === -1) return;
+
+  const hourlyForecast = document.querySelector('.hourly-forecast-container-day');
   hourlyForecast.innerHTML = '';
-  daysArray[indexDay][1].forEach(ele => {
+
+  // Filter hours starting from now
+  const hoursFromNow = daysArray[indexDay][1].filter(ele => {
+    const hourParts = ele.time.split(' ')[0]; // '12' from '12 AM'
+    let hour = parseInt(hourParts);
+    const ampm = ele.time.split(' ')[1];
+    if (ampm === 'PM' && hour !== 12) hour += 12;
+    if (ampm === 'AM' && hour === 12) hour = 0;
+
+    const forecastDate = new Date();
+    forecastDate.setHours(hour, 0, 0, 0);
+
+    return forecastDate >= now;
+  });
+
+  hoursFromNow.forEach(ele => {
     hourlyForecast.innerHTML += `<div class="hourly__card">
       <img src=${weatherIcons[ele.weatherCode]} alt="" class="hourly__img" />
       <p class="hourly__time text-5">${ele.time}</p>
-      <p class="hourly__temp text-7">${Math.round(ele.temperature)}&deg;</p>
+      <p class="hourly__temp text-7" data-value="${ele.temperature}">
+        ${Math.round(convertValue(ele.temperature, "temp"))}°
+      </p>
     </div>`;
   });
+}
+
+
+// ===== Location Search =====
+inputField.value = "Addis Ababa, Ethiopia";
+inputField.addEventListener("keyup", getLocation);
+
+async function getLocation() {
+  if (!inputField.value.length) {
+    searchDropdown.classList.remove('display__units');
+    return;
+  }
+
+  searchDropdown.classList.add('display__units');
+  try {
+    const query = inputField.value.trim();
+    const response = await fetch(
+      `https://geocoding-api.open-meteo.com/v1/search?name=${query}&format=json&count=4`
+    );
+    const data = await response.json();
+    searchDropdown.innerHTML = '';
+
+    if (!data.results || data.results.length === 0) {
+      searchDropdown.innerHTML = `<p class="text-7">No results found</p>`;
+      return;
+    }
+
+    data.results.forEach(city => {
+      searchDropdown.innerHTML += `<p class="search__suggestion text-7" data-lat="${city.latitude}" data-lon="${city.longitude}">${city.name}, ${city.country}</p>`;
+    });
+
+    attachCityClick();
+  } catch (error) {
+    console.error("Error fetching cities:", error);
+  }
+}
+
+function attachCityClick() {
+  let suggestionList = document.querySelectorAll('.search__suggestion');
+  suggestionList.forEach(suggestion => {
+    suggestion.addEventListener('click', function () {
+      const lat = parseFloat(this.getAttribute('data-lat'));
+      const lon = parseFloat(this.getAttribute('data-lon'));
+      inputField.value = this.innerHTML;
+      searchDropdown.innerHTML = '';
+      searchDropdown.classList.remove('display__units');
+
+      getWeather(lat, lon, null, 0, this.innerHTML);
+    });
+
+
+  });
+  // Trigger first suggestion on Enter
+  // Trigger first suggestion on Enter
+  inputField.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      const firstSuggestion = searchDropdown.querySelector(".search__suggestion");
+      if (firstSuggestion) {
+        firstSuggestion.click(); // trigger same event as clicking
+
+        // Clear input and hide dropdown
+      }
+    }
+    searchDropdown.innerHTML = '';
+    searchDropdown.classList.remove('display__units');
+  });
+  const searchBtn = document.querySelector('.search__btn'); // adjust selector if needed
+
+  // Search button click
+  searchBtn.addEventListener('click', function () {
+    const firstSuggestion = searchDropdown.querySelector(".search__suggestion");
+    if (firstSuggestion) {
+      firstSuggestion.click(); // trigger the same event
+      // Clear and hide dropdown
+      searchDropdown.innerHTML = '';
+      searchDropdown.classList.remove('display__units');
+    }
+  });
+
+
 }
 
 // ===== Default City =====
