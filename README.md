@@ -40,7 +40,7 @@ This project implements a progressive, single-page frontend that:
 - Provides unit toggles for temperature, wind and precipitation.
 - Is responsive, optimized for mobile-first layouts, and accessible.
 
-Default city on first load: Addis Ababa, Ethiopia.
+Default city on first load: Addis Ababa, Ethiopia(My Country).
 
 ---
 
@@ -89,7 +89,7 @@ State is maintained client-side (selected day, unit mode, last search).
 
 ### Install & run locally
 
-This repo is a static site. To open locally:
+To open locally:
 
 Option A — Open directly
 
