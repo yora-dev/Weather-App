@@ -12,9 +12,8 @@ let allDays = document.querySelectorAll('.day__dropdown');
 let inputField = document.querySelector('#input-field');
 let searchDropdown = document.querySelector('.search__dropdown');
 
-let daysArray = []; // Global variable for hourly forecast per day
+let daysArray = [];
 
-// ===== UNIT STATE =====
 let selectedUnits = {
   temp: "C",
   speed: "km/h",
@@ -29,6 +28,21 @@ function dropDownActivator(dropDownType) {
 // ===== Event Listeners for Dropdowns =====
 navUnits.addEventListener('click', () => dropDownActivator(unitsDropdown));
 hourlyHeading.addEventListener('click', () => dropDownActivator(dayDropdownList));
+
+// Hide dropdowns when clicking outside
+document.addEventListener('click', function (e) {
+  if (!unitsDropdown.contains(e.target) && !navUnits.contains(e.target)) {
+    unitsDropdown.classList.remove('display__units');
+  }
+
+  if (!dayDropdownList.contains(e.target) && !hourlyHeading.contains(e.target)) {
+    dayDropdownList.classList.remove('display__units');
+  }
+
+  if (!searchDropdown.contains(e.target) && e.target !== inputField) {
+    searchDropdown.classList.remove('display__units');
+  }
+});
 
 // ===== Conversion =====
 function convertValue(value, type) {
@@ -163,7 +177,6 @@ allDays.forEach(day => {
   });
 });
 
-
 async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName = 'Addis Ababa, Ethiopia') {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m`;
 
@@ -217,7 +230,6 @@ async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName 
       }
     });
 
-    // Order days starting from today
     let orderedDays = {};
     for (let i = 0; i < 7; i++) {
       const idx = (todayIdx + i) % 7;
@@ -288,8 +300,6 @@ async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName 
 }
 
 // ===== Default Day Selection =====
-
-
 function selectDefaultDay() {
   const now = new Date();
   const todayName = listOfDays[now.getDay()];
@@ -307,7 +317,6 @@ function selectDefaultDay() {
   const hourlyForecast = document.querySelector('.hourly-forecast-container-day');
   hourlyForecast.innerHTML = '';
 
-  // Filter hours starting from now
   const hoursFromNow = daysArray[indexDay][1].filter(ele => {
     const hourParts = ele.time.split(' ')[0]; // '12' from '12 AM'
     let hour = parseInt(hourParts);
@@ -332,7 +341,6 @@ function selectDefaultDay() {
   });
 }
 
-
 // ===== Location Search =====
 inputField.value = "Addis Ababa, Ethiopia";
 inputField.addEventListener("keyup", getLocation);
@@ -342,7 +350,6 @@ async function getLocation() {
     searchDropdown.classList.remove('display__units');
     return;
   }
-
   searchDropdown.classList.add('display__units');
   try {
     const query = inputField.value.trim();
@@ -356,7 +363,6 @@ async function getLocation() {
       searchDropdown.innerHTML = `<p class="text-7">No results found</p>`;
       return;
     }
-
     data.results.forEach(city => {
       searchDropdown.innerHTML += `<p class="search__suggestion text-7" data-lat="${city.latitude}" data-lon="${city.longitude}">${city.name}, ${city.country}</p>`;
     });
@@ -376,21 +382,16 @@ function attachCityClick() {
       inputField.value = this.innerHTML;
       searchDropdown.innerHTML = '';
       searchDropdown.classList.remove('display__units');
-
       getWeather(lat, lon, null, 0, this.innerHTML);
     });
 
-
   });
-  // Trigger first suggestion on Enter
-  // Trigger first suggestion on Enter
+
   inputField.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
       const firstSuggestion = searchDropdown.querySelector(".search__suggestion");
       if (firstSuggestion) {
-        firstSuggestion.click(); // trigger same event as clicking
-
-        // Clear input and hide dropdown
+        firstSuggestion.click();
       }
     }
     searchDropdown.innerHTML = '';
@@ -402,14 +403,11 @@ function attachCityClick() {
   searchBtn.addEventListener('click', function () {
     const firstSuggestion = searchDropdown.querySelector(".search__suggestion");
     if (firstSuggestion) {
-      firstSuggestion.click(); // trigger the same event
-      // Clear and hide dropdown
+      firstSuggestion.click();
       searchDropdown.innerHTML = '';
       searchDropdown.classList.remove('display__units');
     }
   });
-
-
 }
 
 // ===== Default City =====
@@ -418,5 +416,4 @@ function defaultCity() {
   let lon = 38.74689;
   getWeather(lat, lon);
 }
-
 defaultCity();
