@@ -5,7 +5,7 @@ let dayDropdownList = document.querySelector('.day__dropdown-list');
 let unitsDropdown = document.querySelector('.units__dropdown');
 
 function dropDownActivator(dropDownType) {
-  dropDownType.classList.toggle('display__units')
+  dropDownType.classList.toggle('display__units');
 }
 
 navUnits.addEventListener('click', function () {
@@ -112,7 +112,6 @@ const weatherIcons = {
 
 
 let listOfDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-let listOfDaysAbbreviate = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 let listOfMonth = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 let today = new Date();
 let todayDate = listOfDays[today.getDay()];
@@ -122,9 +121,14 @@ let year = today.getFullYear();
 let currentDate = `${todayDate}, ${month} ${monthDate}, ${year}`
 
 
+let selectedDay = null;
 let allDays = document.querySelectorAll('.day__dropdown');
 allDays.forEach(function (item) {
+  dayChanger(item);
+});
 
+
+function dayChanger(item) {
   if (item.innerHTML == listOfDays[today.getDay()]) {
     item.classList.add('day-active');
     document.querySelector('.hourly__day').innerHTML = item.innerHTML;
@@ -132,18 +136,17 @@ allDays.forEach(function (item) {
 
   item.addEventListener('click', function () {
     allDays.forEach(function (day) {
-      day.classList.remove('day-active')
+      day.classList.remove('day-active');
     });
 
     this.classList.add('day-active');
     document.querySelector('.hourly__day').innerHTML = this.innerHTML;
-
-  })
-});
+  });
+}
 
 let inputField = document.querySelector('#input-field');
 let searchDropdown = document.querySelector('.search__dropdown');
-inputField.value = `Addis Ababa, Ethiopia`
+inputField.value = `Addis Ababa, Ethiopia`;
 inputField.addEventListener("keyup", getLocation);
 
 async function getLocation() {
@@ -169,6 +172,7 @@ async function getLocation() {
       longitude.push(data.results[i].longitude);
       selectedCity(latitude, longitude);
     };
+
 
   } catch (error) {
     console.error("Error fetching cities:", error);
@@ -222,14 +226,91 @@ async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName 
         date: day,
         temp_max: maxTemp,
         temp_min: minTemp,
-        averageTemp: (maxTemp + minTemp) / 2,
         dateName: dayToday,
         weatherCode: dailyWeatherCode
       };
     });
 
-    let generalInfo = document.querySelector('.general-info-container');
+    (() => {
+      const hourlyTimes = weatherData.hourly.time;
+      const hourlyTemps = weatherData.hourly.temperature_2m;
+      const hourlyCodes = weatherData.hourly.weather_code;
 
+      const now = new Date();
+      const todayStr = now.toISOString().split("T")[0];
+
+      const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      let todayIndex = now.getDay();
+
+      let daily8Hours = {};
+
+
+      hourlyTimes.forEach((timeStr, i) => {
+        const hourDate = new Date(timeStr);
+        const dateStr = timeStr.split("T")[0];
+
+
+        if (dateStr === todayStr && hourDate < now) return;
+
+
+        const diffDays = Math.floor((hourDate - now) / (1000 * 60 * 60 * 24));
+        if (diffDays >= 7) return;
+
+
+        const dayName = dayNames[hourDate.getDay()];
+
+        if (!daily8Hours[dayName]) daily8Hours[dayName] = [];
+
+
+        if (daily8Hours[dayName].length < 7) {
+          let hours = hourDate.getHours();
+          let ampm = hours >= 12 ? "PM" : "AM";
+          hours = hours % 12;
+          hours = hours ? hours : 12;
+          const formattedTime = `${hours} ${ampm}`;
+
+          daily8Hours[dayName].push({
+            time: formattedTime,
+            temperature: hourlyTemps[i],
+            weatherCode: hourlyCodes[i]
+          });
+        }
+      });
+
+      let orderedDays = {};
+      for (let i = 0; i < 7; i++) {
+        const idx = (todayIndex + i) % 7;
+        const name = dayNames[idx];
+        if (daily8Hours[name]) {
+          orderedDays[name] = daily8Hours[name];
+        }
+      }
+
+      const daysArray = Object.entries(orderedDays);
+      let hourlyForecast = document.querySelector('.hourly-forecast-container-day');
+      for (let i = 0; i < allDays.length; i++) {
+
+        allDays[i].addEventListener('click', function () {
+          hourlyForecast.innerHTML = '';
+          let indexDay = listOfDays.indexOf(this.innerHTML);
+
+          daysArray[indexDay][1].forEach(function (ele) {
+            console.log(ele.time);
+            hourlyForecast.innerHTML += `<div class="hourly__card">
+            <img
+              src=${weatherIcons[ele.weatherCode]}
+              alt=""
+              class="hourly__img"
+            />
+            <p class="hourly__time text-5">${ele.time}</p>
+            <p class="hourly__temp text-7">${Math.round(ele.temperature)}&deg;</p>
+          </div>`
+          })
+        });
+      };
+    })();
+
+    let generalInfo = document.querySelector('.general-info-container');
 
     generalInfo.innerHTML = `<div class="city-date-info">
             <p class="city text-4">${suggestionArray ? suggestionArray[index].innerHTML : cityName}</p>
@@ -284,3 +365,33 @@ function defaultCity() {
 }
 
 defaultCity();
+function defaultDay() {
+
+  let today = new Date();
+  let todayName = listOfDays[today.getDay()];
+
+  allDays.forEach(day => day.classList.remove('day-active'));
+
+  let todayElement = Array.from(allDays).find(day => day.innerHTML === todayName);
+  if (!todayElement) return;
+
+  todayElement.classList.add('day-active');
+
+  let indexDay = listOfDays.indexOf(todayName);
+  if (typeof daysArray !== 'undefined' && daysArray[indexDay]) {
+    let hourlyForecast = document.querySelector('.hourly-forecast-container-day');
+    hourlyForecast.innerHTML = '';
+    daysArray[indexDay][1].forEach(function (ele) {
+      hourlyForecast.innerHTML += `<div class="hourly__card">
+        <img src=${weatherIcons[ele.weatherCode]} alt="" class="hourly__img" />
+        <p class="hourly__time text-5">${ele.time}</p>
+        <p class="hourly__temp text-7">${Math.round(ele.temperature)}&deg;</p>
+      </div>`;
+    });
+  }
+
+  document.querySelector('.hourly__day').innerHTML = todayName;
+}
+
+// Call defaultDay after weather data has loaded
+defaultDay()

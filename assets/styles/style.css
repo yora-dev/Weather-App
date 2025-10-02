@@ -327,6 +327,10 @@ body {
   position: relative;
 }
 
+.hourly-forecast-container-day {
+  width: 100%;
+}
+
 .hourly__heading {
   display: flex;
   align-items: center;
