@@ -34,11 +34,9 @@ document.addEventListener('click', function (e) {
   if (!unitsDropdown.contains(e.target) && !navUnits.contains(e.target)) {
     unitsDropdown.classList.remove('display__units');
   }
-
   if (!dayDropdownList.contains(e.target) && !hourlyHeading.contains(e.target)) {
     dayDropdownList.classList.remove('display__units');
   }
-
   if (!searchDropdown.contains(e.target) && e.target !== inputField) {
     searchDropdown.classList.remove('display__units');
   }
@@ -77,7 +75,6 @@ function updateDisplayedUnits() {
 // ===== Unit Switcher =====
 function unitSwitch(unitType, type) {
   unitType[1].children[0].style.display = 'none';
-
   unitType.forEach(item => {
     item.addEventListener('click', function () {
       if (this === unitType[0]) {
@@ -86,18 +83,15 @@ function unitSwitch(unitType, type) {
         document.querySelector('.unit__header').innerHTML = 'Switch to Imperial';
         unitType[0].children[0].style.display = 'block';
         unitType[1].children[0].style.display = 'none';
-
         if (type === "temp") selectedUnits.temp = "C";
         if (type === "speed") selectedUnits.speed = "km/h";
         if (type === "pre") selectedUnits.pre = "mm";
-
       } else {
         unitType[1].classList.add('unit_activated');
         unitType[0].classList.remove('unit_activated');
         document.querySelector('.unit__header').innerHTML = 'Switch to Metrics';
         unitType[1].children[0].style.display = 'block';
         unitType[0].children[0].style.display = 'none';
-
         if (type === "temp") selectedUnits.temp = "F";
         if (type === "speed") selectedUnits.speed = "mph";
         if (type === "pre") selectedUnits.pre = "in";
@@ -159,24 +153,144 @@ allDays.forEach(day => {
     allDays.forEach(d => d.classList.remove('day-active'));
     this.classList.add('day-active');
     document.querySelector('.hourly__day').innerHTML = this.innerHTML;
-
-    let indexDay = listOfDays.indexOf(this.innerHTML);
-    if (daysArray[indexDay]) {
-      let hourlyForecast = document.querySelector('.hourly-forecast-container-day');
-      hourlyForecast.innerHTML = '';
-      daysArray[indexDay][1].forEach(ele => {
-        hourlyForecast.innerHTML += `<div class="hourly__card">
-          <img src=${weatherIcons[ele.weatherCode]} alt="" class="hourly__img" />
-          <p class="hourly__time text-5">${ele.time}</p>
-          <p class="hourly__temp text-7" data-value="${ele.temperature}">
-            ${Math.round(convertValue(ele.temperature, "temp"))}°
-          </p>
-        </div>`;
-      });
-    }
+    displayHourlyForecast(this.innerHTML);
   });
 });
 
+// ===== Display Hourly Forecast (7 hours guaranteed) =====
+function displayHourlyForecast(dayName) {
+  const hourlyForecast = document.querySelector('.hourly-forecast-container-day');
+  hourlyForecast.innerHTML = '';
+
+  let indexDay = daysArray.findIndex(d => d[0] === dayName);
+  if (indexDay === -1) return;
+
+  const now = new Date();
+  let hoursToShow = [];
+  let remainingHours = 7;
+
+  for (let i = indexDay; i < daysArray.length && remainingHours > 0; i++) {
+    const dayHours = daysArray[i][1];
+    const dayOffset = i - indexDay;
+
+    for (let ele of dayHours) {
+      let [hourStr, ampm] = ele.time.split(' ');
+      let hour = parseInt(hourStr);
+      if (ampm === 'PM' && hour !== 12) hour += 12;
+      if (ampm === 'AM' && hour === 12) hour = 0;
+
+      const forecastDate = new Date(now);
+      forecastDate.setDate(now.getDate() + dayOffset);
+      forecastDate.setHours(hour, 0, 0, 0);
+
+      if (forecastDate >= now) {
+        hoursToShow.push(ele);
+        remainingHours--;
+      }
+      if (remainingHours <= 0) break;
+    }
+  }
+
+  // If still fewer than 7 hours, fill with next day hours
+  if (hoursToShow.length < 7) {
+    for (let i = 0; i < daysArray.length && hoursToShow.length < 7; i++) {
+      if (i === indexDay) continue;
+      const dayHours = daysArray[i][1];
+      for (let ele of dayHours) {
+        hoursToShow.push(ele);
+        if (hoursToShow.length >= 7) break;
+      }
+    }
+  }
+
+  hoursToShow.forEach(ele => {
+    hourlyForecast.innerHTML += `<div class="hourly__card">
+      <img src=${weatherIcons[ele.weatherCode]} alt="" class="hourly__img" />
+      <p class="hourly__time text-5">${ele.time}</p>
+      <p class="hourly__temp text-7" data-value="${ele.temperature}">
+        ${Math.round(convertValue(ele.temperature, "temp"))}°
+      </p>
+    </div>`;
+  });
+}
+
+// ===== Default Day Selection =====
+function selectDefaultDay() {
+  const todayName = listOfDays[new Date().getDay()];
+  allDays.forEach(day => day.classList.remove('day-active'));
+  const todayElement = Array.from(allDays).find(day => day.innerHTML === todayName);
+  if (!todayElement) return;
+
+  todayElement.classList.add('day-active');
+  document.querySelector('.hourly__day').innerHTML = todayName;
+
+  displayHourlyForecast(todayName);
+}
+
+// ===== Location Search =====
+inputField.value = "Addis Ababa, Ethiopia";
+inputField.addEventListener("keyup", getLocation);
+
+async function getLocation() {
+  if (!inputField.value.length) {
+    searchDropdown.classList.remove('display__units');
+    return;
+  }
+  searchDropdown.classList.add('display__units');
+  try {
+    const query = inputField.value.trim();
+    const response = await fetch(
+      `https://geocoding-api.open-meteo.com/v1/search?name=${query}&format=json&count=4`
+    );
+    const data = await response.json();
+    searchDropdown.innerHTML = '';
+
+    if (!data.results || data.results.length === 0) {
+      searchDropdown.innerHTML = `<p class="text-7">No results found</p>`;
+      return;
+    }
+    data.results.forEach(city => {
+      searchDropdown.innerHTML += `<p class="search__suggestion text-7" data-lat="${city.latitude}" data-lon="${city.longitude}">${city.name}, ${city.country}</p>`;
+    });
+
+    attachCityClick();
+  } catch (error) {
+    console.error("Error fetching cities:", error);
+  }
+}
+
+function attachCityClick() {
+  let suggestionList = document.querySelectorAll('.search__suggestion');
+  suggestionList.forEach(suggestion => {
+    suggestion.addEventListener('click', function () {
+      const lat = parseFloat(this.getAttribute('data-lat'));
+      const lon = parseFloat(this.getAttribute('data-lon'));
+      inputField.value = this.innerHTML;
+      searchDropdown.innerHTML = '';
+      searchDropdown.classList.remove('display__units');
+      getWeather(lat, lon, null, 0, this.innerHTML);
+    });
+  });
+
+  inputField.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      const firstSuggestion = searchDropdown.querySelector(".search__suggestion");
+      if (firstSuggestion) firstSuggestion.click();
+      searchDropdown.innerHTML = '';
+      searchDropdown.classList.remove('display__units');
+    }
+  });
+
+  const searchBtn = document.querySelector('.search__btn');
+  searchBtn.addEventListener('click', function () {
+    const firstSuggestion = searchDropdown.querySelector(".search__suggestion");
+    if (firstSuggestion) firstSuggestion.click();
+    searchDropdown.innerHTML = '';
+    searchDropdown.classList.remove('display__units');
+  });
+}
+
+// ===== Fetch Weather =====
 async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName = 'Addis Ababa, Ethiopia') {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m`;
 
@@ -210,7 +324,6 @@ async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName 
 
     const now = new Date();
     const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    let todayIdx = now.getDay();
 
     let daily8Hours = {};
     hourlyTimes.forEach((timeStr, i) => {
@@ -232,7 +345,7 @@ async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName 
 
     let orderedDays = {};
     for (let i = 0; i < 7; i++) {
-      const idx = (todayIdx + i) % 7;
+      const idx = (todayIndex + i) % 7;
       const name = dayNames[idx];
       if (daily8Hours[name]) orderedDays[name] = daily8Hours[name];
     }
@@ -297,117 +410,6 @@ async function getWeather(lat, lon, suggestionArray = null, index = 0, cityName 
   } catch (err) {
     console.error("Error fetching weather data:", err);
   }
-}
-
-// ===== Default Day Selection =====
-function selectDefaultDay() {
-  const now = new Date();
-  const todayName = listOfDays[now.getDay()];
-
-  allDays.forEach(day => day.classList.remove('day-active'));
-  const todayElement = Array.from(allDays).find(day => day.innerHTML === todayName);
-  if (!todayElement) return;
-
-  todayElement.classList.add('day-active');
-  document.querySelector('.hourly__day').innerHTML = todayName;
-
-  const indexDay = daysArray.findIndex(d => d[0] === todayName);
-  if (indexDay === -1) return;
-
-  const hourlyForecast = document.querySelector('.hourly-forecast-container-day');
-  hourlyForecast.innerHTML = '';
-
-  const hoursFromNow = daysArray[indexDay][1].filter(ele => {
-    const hourParts = ele.time.split(' ')[0]; // '12' from '12 AM'
-    let hour = parseInt(hourParts);
-    const ampm = ele.time.split(' ')[1];
-    if (ampm === 'PM' && hour !== 12) hour += 12;
-    if (ampm === 'AM' && hour === 12) hour = 0;
-
-    const forecastDate = new Date();
-    forecastDate.setHours(hour, 0, 0, 0);
-
-    return forecastDate >= now;
-  });
-
-  hoursFromNow.forEach(ele => {
-    hourlyForecast.innerHTML += `<div class="hourly__card">
-      <img src=${weatherIcons[ele.weatherCode]} alt="" class="hourly__img" />
-      <p class="hourly__time text-5">${ele.time}</p>
-      <p class="hourly__temp text-7" data-value="${ele.temperature}">
-        ${Math.round(convertValue(ele.temperature, "temp"))}°
-      </p>
-    </div>`;
-  });
-}
-
-// ===== Location Search =====
-inputField.value = "Addis Ababa, Ethiopia";
-inputField.addEventListener("keyup", getLocation);
-
-async function getLocation() {
-  if (!inputField.value.length) {
-    searchDropdown.classList.remove('display__units');
-    return;
-  }
-  searchDropdown.classList.add('display__units');
-  try {
-    const query = inputField.value.trim();
-    const response = await fetch(
-      `https://geocoding-api.open-meteo.com/v1/search?name=${query}&format=json&count=4`
-    );
-    const data = await response.json();
-    searchDropdown.innerHTML = '';
-
-    if (!data.results || data.results.length === 0) {
-      searchDropdown.innerHTML = `<p class="text-7">No results found</p>`;
-      return;
-    }
-    data.results.forEach(city => {
-      searchDropdown.innerHTML += `<p class="search__suggestion text-7" data-lat="${city.latitude}" data-lon="${city.longitude}">${city.name}, ${city.country}</p>`;
-    });
-
-    attachCityClick();
-  } catch (error) {
-    console.error("Error fetching cities:", error);
-  }
-}
-
-function attachCityClick() {
-  let suggestionList = document.querySelectorAll('.search__suggestion');
-  suggestionList.forEach(suggestion => {
-    suggestion.addEventListener('click', function () {
-      const lat = parseFloat(this.getAttribute('data-lat'));
-      const lon = parseFloat(this.getAttribute('data-lon'));
-      inputField.value = this.innerHTML;
-      searchDropdown.innerHTML = '';
-      searchDropdown.classList.remove('display__units');
-      getWeather(lat, lon, null, 0, this.innerHTML);
-    });
-
-  });
-
-  inputField.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-      const firstSuggestion = searchDropdown.querySelector(".search__suggestion");
-      if (firstSuggestion) {
-        firstSuggestion.click();
-      }
-    }
-    searchDropdown.innerHTML = '';
-    searchDropdown.classList.remove('display__units');
-  });
-  const searchBtn = document.querySelector('.search__btn'); // adjust selector if needed
-
-  // Search button click
-  searchBtn.addEventListener('click', function () {
-    const firstSuggestion = searchDropdown.querySelector(".search__suggestion");
-    if (firstSuggestion) {
-      firstSuggestion.click();
-      searchDropdown.innerHTML = '';
-      searchDropdown.classList.remove('display__units');
-    }
-  });
 }
 
 // ===== Default City =====
