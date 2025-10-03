@@ -230,7 +230,7 @@ function selectDefaultDay() {
 }
 
 // ===== Location Search =====
-inputField.value = "Addis Ababa, Ethiopia";
+inputField.value = "";
 inputField.addEventListener("keyup", getLocation);
 
 async function getLocation() {
