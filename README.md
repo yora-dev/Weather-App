@@ -15,16 +15,13 @@ A responsive, mobile-first weather web app built as a Frontend Mentor challenge 
   - [Install & run locally](#install--run-locally)
   - [Build & serve](#build--serve)
 - [Configuration & API details](#configuration--api-details)
-- [Usage guide](#usage-guide)
+- [Live demo](#live-demo)
 - [Development notes](#development-notes)
   - [Project structure](#project-structure)
   - [Coding conventions](#coding-conventions)
   - [Testing & linting](#testing--linting)
 - [Accessibility & performance](#accessibility--performance)
-- [Deployment](#deployment)
 - [Future improvements](#future-improvements)
-- [Contributing](#contributing)
-- [License](#license)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
 
@@ -136,7 +133,7 @@ Local configuration:
 
 ## Usage guide
 
-### Live demo
+## Live demo
 
 - Live site: https://yordanos-weather-app.vercel.app/
 
