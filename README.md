@@ -17,6 +17,8 @@ A responsive, mobile-first weather web app built as a Frontend Mentor challenge 
 - [Configuration & API details](#configuration--api-details)
 - [Live demo](#live-demo)
 - [Future improvements](#future-improvements)
+- [Contributing](#contributing)
+- [Screenshots](#screenshots)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
 
